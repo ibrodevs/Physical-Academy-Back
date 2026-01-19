@@ -1,4 +1,6 @@
 from django.db import models
+from cloudinary.models import CloudinaryField
+from ckeditor_uploader.fields import RichTextUploadingField
 
 
 # Create your models here.
@@ -51,36 +53,56 @@ class AboutPhotos(models.Model):
         return getattr(self, f"description_{language}", self.description_ru)
 
 
-class HistoryStep(models.Model):
-    year = models.PositiveBigIntegerField(verbose_name="Год")
+class History(models.Model):
+    image = CloudinaryField(
+        verbose_name=("Главное изображение")
+    )
+    text_ru = RichTextUploadingField(null=True, blank=True, verbose_name=("Текст истории(русский)"))
+    text_en = RichTextUploadingField(null=True, blank=True, verbose_name=("Текст истории(английский)"))
+    text_kg = RichTextUploadingField(null=True, blank=True, verbose_name=("Текст истории(кыргызский)"))
+
+    class Meta:
+        verbose_name = "История академии"
+        verbose_name_plural = "Истории академии"
+    
+    def __str__(self):
+        return f"История {self.id}"
+    
+    def get_text(self, language="ru"):
+        return getattr(self, f"text_{language}", self.text_ru)
+    
+
+
+
+
+class Mission(models.Model):
+
     title_ru = models.CharField(
-        max_length=200, verbose_name="Заголовок шага истории(русский)"
+        max_length=200, verbose_name="Заголовок миссии(русский)"
     )
     title_en = models.CharField(
-        max_length=200, verbose_name="Заголовок шага истории(английский)"
+        max_length=200, verbose_name="Заголовок миссии(английский)"
     )
     title_kg = models.CharField(
-        max_length=200, verbose_name="Заголовок шага истории(киргизский)"
+        max_length=200, verbose_name="Заголовок миссии(киргизский)"
     )
-    description_ru = models.TextField(verbose_name="Описание на русском")
-    description_en = models.TextField(verbose_name="Описание на английском")
-    description_kg = models.TextField(verbose_name="Описание на кыргызском")
+    description_ru = RichTextUploadingField(verbose_name="Описание на русском", null=True, blank=True)
+    description_en = RichTextUploadingField(verbose_name="Описание на английском", null=True, blank=True)
+    description_kg = RichTextUploadingField(verbose_name="Описание на кыргызском", null=True, blank=True)
 
-    buildings = models.PositiveBigIntegerField(verbose_name="количество корпусов")
-    students = models.PositiveBigIntegerField(verbose_name="количество студентов")
-    programs = models.PositiveBigIntegerField(verbose_name="количество программ")
-
-    achievements_ru = models.JSONField(verbose_name="Достижения на русском", blank=True)
-    achievements_en = models.JSONField(
-        verbose_name="Достижения на английском", blank=True
+    pdf_ru = models.FileField(
+        upload_to="mission_pdfs/", verbose_name="PDF файл для миссии(русский)", blank=True, null=True
     )
-    achievements_kg = models.JSONField(
-        verbose_name="Достижения на кыргызском", blank=True
+    pdf_en = models.FileField(
+        upload_to="mission_pdfs/", verbose_name="PDF файл для миссии(английский)", blank=True, null=True
+    )
+    pdf_kg = models.FileField(
+        upload_to="mission_pdfs/", verbose_name="PDF файл для миссии(кыргызский)", blank=True, null=True
     )
 
     class Meta:
-        verbose_name = "Шаг истории"
-        verbose_name_plural = "Шаги истории"
+        verbose_name = "Миссия"
+        verbose_name_plural = "Миссии"
 
     def __str__(self):
         return self.title_ru
@@ -91,151 +113,43 @@ class HistoryStep(models.Model):
     def get_title(self, language="ru"):
         return getattr(self, f"title_{language}", self.title_ru)
 
-    def get_achievements(self, language="ru"):
-        return getattr(self, f"achievements_{language}", self.achievements_ru)
-
-
-class ImportantDates(models.Model):
-
-    year = models.PositiveBigIntegerField(verbose_name="Год")
-    titleInt = models.CharField(
-        max_length=200, verbose_name="Заголовок важной даты типа 15+"
-    )
-    description_ru = models.TextField(verbose_name="Описание на русском")
-    description_en = models.TextField(verbose_name="Описание на английском")
-    description_kg = models.TextField(verbose_name="Описание на кыргызском")
-
-    class Meta:
-        verbose_name = "Важная веха"
-        verbose_name_plural = "Важные вехи"
-
-    def __str__(self):
-        return f"Важная веха {self.year}"
-
-    def get_description(self, language="ru"):
-        return getattr(self, f"description_{language}", self.description_ru)
-
-
-class MissionCategory(models.Model):
-    name_ru = models.CharField(max_length=200, verbose_name="категории name(русский)")
-    name_en = models.CharField(
-        max_length=200, verbose_name="категории name(английский)"
-    )
-    name_kg = models.CharField(
-        max_length=200, verbose_name="категории name(киргизский)"
-    )
-
-    class Meta:
-        verbose_name = "Категория миссии"
-        verbose_name_plural = "Категории миссии"
-
-    def __str__(self):
-        return self.name_ru
-
-    def get_name(self, language="ru"):
-        return getattr(self, f"name_{language}", self.name_ru)
-
-
-class Mission(models.Model):
-    category = models.ForeignKey(
-        MissionCategory,
-        on_delete=models.CASCADE,
-        related_name="missions",
-        verbose_name="Категория миссии",
-    )
-    title_ru = models.CharField(
-        max_length=200, verbose_name="Заголовок миссии(русский)"
-    )
-    title_en = models.CharField(
-        max_length=200, verbose_name="Заголовок миссии(английский)"
-    )
-    title_kg = models.CharField(
-        max_length=200, verbose_name="Заголовок миссии(киргизский)"
-    )
-    description_ru = models.TextField(verbose_name="Описание на русском")
-    description_en = models.TextField(verbose_name="Описание на английском")
-    description_kg = models.TextField(verbose_name="Описание на кыргызском")
-
-    class Meta:
-        verbose_name = "Миссия"
-        verbose_name_plural = "Миссии"
-
-    def __str__(self):
-        return f"Миссия {self.id} в категории {self.category.name_ru}"
-
-    def get_description(self, language="ru"):
-        return getattr(self, f"description_{language}", self.description_ru)
-
-    def get_title(self, language="ru"):
-        return getattr(self, f"title_{language}", self.title_ru)
-
-
-class AccreditationType(models.Model):
-
-    name_ru = models.CharField(max_length=200, verbose_name="Название (русский)")
-    name_en = models.CharField(max_length=200, verbose_name="Название (английский)")
-    name_kg = models.CharField(max_length=200, verbose_name="Название (киргизский)")
-
-    class Meta:
-        verbose_name = "Тип аккредитации"
-        verbose_name_plural = "Типы аккредитации"
-
-    def __str__(self):
-        return f"{self.name_ru}"
-
-    def get_name(self, language="ru"):
-        return getattr(self, f"name_{language}", self.name_ru)
 
 
 class Accreditation(models.Model):
     # Основная информация — три языка для текстов
-    organization_ru = models.CharField(max_length=255)
-    organization_en = models.CharField(max_length=255)
-    organization_kg = models.CharField(max_length=255)
+    name_ru = models.CharField(max_length=200)
+    name_en = models.CharField(max_length=200)
+    name_kg = models.CharField(max_length=200)
 
-    logo = models.ImageField(upload_to="accreditation_logos/", blank=True, null=True)
+    description_ru = RichTextUploadingField(verbose_name="Описание на русском", null=True, blank=True)
+    description_en = RichTextUploadingField(verbose_name="Описание на английском", null=True, blank=True)
+    description_kg = RichTextUploadingField(verbose_name="Описание на кыргызском", null=True, blank=True)
 
-    validity_ru = models.CharField(max_length=255)
-    validity_en = models.CharField(max_length=255)
-    validity_kg = models.CharField(max_length=255)
-
-    description_ru = models.TextField()
-    description_en = models.TextField()
-    description_kg = models.TextField()
-
-    # Ссылка на тип аккредитации (модель с переводами)
-    accreditation_type = models.ForeignKey(
-        AccreditationType, on_delete=models.PROTECT, related_name="accreditations"
+    pdf_ru = models.FileField(
+        upload_to="accreditation_pdfs/", verbose_name="PDF файл для аккредитации(русский)", blank=True, null=True
     )
-    photo = models.ImageField(upload_to="accreditation_photos/", blank=True, null=True)
+    pdf_en = models.FileField(
+        upload_to="accreditation_pdfs/", verbose_name="PDF файл для аккредитации(английский)", blank=True, null=True
+    )
+    pdf_kg = models.FileField(
+        upload_to="accreditation_pdfs/", verbose_name="PDF файл для аккредитации(кыргызский)", blank=True, null=True
+    )   
 
-    certificate_number = models.CharField(max_length=100, blank=True, null=True)
-    is_active = models.BooleanField(default=True)
-
-    order = models.IntegerField(default=0)  # если нужен порядок вывода
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Аккредитация"
         verbose_name_plural = "Аккредитации"
-        ordering = [
-            "order",
-            "-created_at",
-        ]  # сортировка по порядку, затем по дате создания
 
     def __str__(self):
-        return self.organization_ru
-
-    def get_organization(self, language="ru"):
-        return getattr(self, f"organization_{language}", self.organization_ru)
-
-    def get_validity(self, language="ru"):
-        return getattr(self, f"validity_{language}", self.validity_ru)
+        return self.name_ru
 
     def get_description(self, language="ru"):
         return getattr(self, f"description_{language}", self.description_ru)
+
+    def get_name(self, language="ru"):
+        return getattr(self, f"name_{language}", self.name_ru)
+
+    
 
 
 class AcademyStatistics(models.Model):

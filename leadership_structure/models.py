@@ -1,6 +1,8 @@
 from django.db import models
 from django.core.validators import MinValueValidator, EmailValidator
 from django.utils.translation import gettext_lazy as _
+from cloudinary.models import CloudinaryField
+from ckeditor_uploader.fields import RichTextUploadingField
 
 
 class BoardOfTrustees(models.Model):
@@ -16,84 +18,44 @@ class BoardOfTrustees(models.Model):
     position_kg = models.CharField(max_length=200, verbose_name="Должность (KG)", blank=True)
     position_en = models.CharField(max_length=200, verbose_name="Должность (EN)", blank=True)
     
-    # Bio fields
-    bio = models.TextField(verbose_name="Биография (RU)")
-    bio_kg = models.TextField(verbose_name="Биография (KG)", blank=True)
-    bio_en = models.TextField(verbose_name="Биография (EN)", blank=True)
     
-    # Achievements (JSON field for list of achievements in each language)
-    achievements = models.JSONField(default=list, verbose_name="Достижения (RU)", blank=True)
-    achievements_kg = models.JSONField(default=list, verbose_name="Достижения (KG)", blank=True)
-    achievements_en = models.JSONField(default=list, verbose_name="Достижения (EN)", blank=True)
-    
-    # Contact information
-    email = models.EmailField(verbose_name="Email", blank=True)
-    phone = models.CharField(max_length=20, verbose_name="Телефон", blank=True)
-    
-    # Image
-    image = models.ImageField(upload_to='trustees/', verbose_name="Фото", blank=True, null=True)
-    
-    # Icon (emoji or icon class)
-    icon = models.CharField(max_length=50, verbose_name="Иконка", default='👑', blank=True)
-    
-    # System fields
-    is_active = models.BooleanField(default=True, verbose_name="Активен")
-    order = models.IntegerField(default=0, verbose_name="Порядок отображения")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
+    image = CloudinaryField(verbose_name="Фото", blank=True, null=True)
     
     class Meta:
         verbose_name = "Член попечительского совета"
         verbose_name_plural = "Попечительский совет"
-        ordering = ['order', 'name']
     
     def __str__(self):
         return f"{self.name} - {self.position}"
 
+    def get_name(self, language="ru"):
+        return getattr(self, f"name_{language}", self.name_ru)
+
+    def get_position(self, language="ru"):
+        return getattr(self, f"position_{language}", self.position_ru)
+
 
 class AuditCommission(models.Model):
     """Ревизионная комиссия / Audit Commission"""
-    
-    # Name fields
-    name = models.CharField(max_length=200, verbose_name="ФИО (RU)")
-    name_kg = models.CharField(max_length=200, verbose_name="ФИО (KG)", blank=True)
-    name_en = models.CharField(max_length=200, verbose_name="ФИО (EN)", blank=True)
-    
-    # Position fields
-    position = models.CharField(max_length=200, verbose_name="Должность (RU)")
-    position_kg = models.CharField(max_length=200, verbose_name="Должность (KG)", blank=True)
-    position_en = models.CharField(max_length=200, verbose_name="Должность (EN)", blank=True)
-    
-    # Department fields
-    department = models.CharField(max_length=200, verbose_name="Отдел (RU)", blank=True)
-    department_kg = models.CharField(max_length=200, verbose_name="Отдел (KG)", blank=True)
-    department_en = models.CharField(max_length=200, verbose_name="Отдел (EN)", blank=True)
-    
-    # Achievements (JSON field for list of achievements)
-    achievements = models.JSONField(default=list, verbose_name="Достижения (RU)", blank=True)
-    achievements_kg = models.JSONField(default=list, verbose_name="Достижения (KG)", blank=True)
-    achievements_en = models.JSONField(default=list, verbose_name="Достижения (EN)", blank=True)
-    
-    # Contact information
-    email = models.EmailField(verbose_name="Email", blank=True)
-    phone = models.CharField(max_length=20, verbose_name="Телефон", blank=True)
-    
-    # Image
-    image = models.ImageField(upload_to='audit_commission/', verbose_name="Фото", blank=True, null=True)
-    
-    # System fields
+    text_ru = models.CharField(max_length=200, verbose_name="Текст (RU)")
+    text_kg = models.CharField(max_length=200, verbose_name="Текст (KG)")
+    text_en = models.CharField(max_length=200, verbose_name="Текст (EN)")
     is_active = models.BooleanField(default=True, verbose_name="Активен")
     order = models.IntegerField(default=0, verbose_name="Порядок отображения")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
     
+    
     class Meta:
-        verbose_name = "Член ревизионной комиссии"
-        verbose_name_plural = "Ревизионная комиссия"
-        ordering = ['order', 'name']
+        verbose_name = "Член  комиссии"
+        verbose_name_plural = " комиссия"
+        ordering = ["order", "id"]
     
     def __str__(self):
-        return f"{self.name} - {self.position}"
+        return self.text_ru
+
+    def get_text(self, language="ru"):
+        return getattr(self, f"text_{language}", self.text_ru)
 
 
 class AcademicCouncil(models.Model):
@@ -141,168 +103,17 @@ class AcademicCouncil(models.Model):
         return f"{self.name} - {self.position}"
 
 
-class TradeUnionBenefit(models.Model):
-    """Преимущества профсоюза / Trade Union Benefits"""
-    
-    # Title fields
-    title = models.CharField(max_length=200, verbose_name="Название (RU)")
-    title_kg = models.CharField(max_length=200, verbose_name="Название (KG)", blank=True)
-    title_en = models.CharField(max_length=200, verbose_name="Название (EN)", blank=True)
-    
-    # Description fields
-    description = models.TextField(verbose_name="Описание (RU)")
-    description_kg = models.TextField(verbose_name="Описание (KG)", blank=True)
-    description_en = models.TextField(verbose_name="Описание (EN)", blank=True)
-    
-    # Icon
-    icon = models.CharField(max_length=50, verbose_name="Иконка", default='🎁', blank=True)
-    
-    # System fields
-    is_active = models.BooleanField(default=True, verbose_name="Активен")
-    order = models.IntegerField(default=0, verbose_name="Порядок отображения")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
-    
+class Profsoyuz(models.Model):
+    description_ru = RichTextUploadingField(verbose_name="Описание (RU)")
+    description_kg = RichTextUploadingField(verbose_name="Описание (KG)", blank=True)
+    description_en = RichTextUploadingField(verbose_name="Описание (EN)", blank=True)
+
     class Meta:
-        verbose_name = "Преимущество профсоюза"
-        verbose_name_plural = "Преимущества профсоюза"
-        ordering = ['order', 'title']
+        verbose_name = "Профсоюз"
+        verbose_name_plural = "Профсоюз"
     
-    def __str__(self):
-        return self.title
-
-
-class TradeUnionEvent(models.Model):
-    """События профсоюза / Trade Union Events"""
-    
-    # Title fields
-    title = models.CharField(max_length=200, verbose_name="Название (RU)")
-    title_kg = models.CharField(max_length=200, verbose_name="Название (KG)", blank=True)
-    title_en = models.CharField(max_length=200, verbose_name="Название (EN)", blank=True)
-    
-    # Date fields
-    date = models.CharField(max_length=100, verbose_name="Дата (RU)")
-    date_kg = models.CharField(max_length=100, verbose_name="Дата (KG)", blank=True)
-    date_en = models.CharField(max_length=100, verbose_name="Дата (EN)", blank=True)
-    
-    # Description fields
-    description = models.TextField(verbose_name="Описание (RU)")
-    description_kg = models.TextField(verbose_name="Описание (KG)", blank=True)
-    description_en = models.TextField(verbose_name="Описание (EN)", blank=True)
-    
-    # Image
-    image = models.ImageField(upload_to='trade_union_events/', verbose_name="Фото", blank=True, null=True)
-    
-    # Icon
-    icon = models.CharField(max_length=50, verbose_name="Иконка", default='📅', blank=True)
-    
-    # System fields
-    is_active = models.BooleanField(default=True, verbose_name="Активен")
-    order = models.IntegerField(default=0, verbose_name="Порядок отображения")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
-    
-    class Meta:
-        verbose_name = "Событие профсоюза"
-        verbose_name_plural = "События профсоюза"
-        ordering = ['order', 'title']
-    
-    def __str__(self):
-        return self.title
-
-
-class TradeUnionStats(models.Model):
-    """Статистика профсоюза / Trade Union Statistics"""
-    
-    # Label fields
-    label = models.CharField(max_length=200, verbose_name="Название (RU)")
-    label_kg = models.CharField(max_length=200, verbose_name="Название (KG)", blank=True)
-    label_en = models.CharField(max_length=200, verbose_name="Название (EN)", blank=True)
-    
-    # Value
-    value = models.IntegerField(verbose_name="Значение", validators=[MinValueValidator(0)])
-    
-    # Icon
-    icon = models.CharField(max_length=50, verbose_name="Иконка", default='📊', blank=True)
-    
-    # Color gradient
-    color_from = models.CharField(max_length=50, verbose_name="Цвет от", default='blue-500')
-    color_to = models.CharField(max_length=50, verbose_name="Цвет до", default='green-500')
-    
-    # System fields
-    is_active = models.BooleanField(default=True, verbose_name="Активен")
-    order = models.IntegerField(default=0, verbose_name="Порядок отображения")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
-    
-    class Meta:
-        verbose_name = "Статистика профсоюза"
-        verbose_name_plural = "Статистика профсоюза"
-        ordering = ['order', 'label']
-    
-    def __str__(self):
-        return f"{self.label}: {self.value}"
-
-
-class Commission(models.Model):
-    """Комиссии / Commissions"""
-    
-    CATEGORY_CHOICES = [
-        ('academic', 'Академические'),
-        ('quality', 'Качество образования'),
-        ('student', 'Студенческие'),
-        ('methodical', 'Методические'),
-        ('all', 'Все'),
-    ]
-    
-    # Name fields
-    name = models.CharField(max_length=200, verbose_name="Название (RU)")
-    name_kg = models.CharField(max_length=200, verbose_name="Название (KG)", blank=True)
-    name_en = models.CharField(max_length=200, verbose_name="Название (EN)", blank=True)
-    
-    # Chairman fields
-    chairman = models.CharField(max_length=200, verbose_name="Председатель (RU)")
-    chairman_kg = models.CharField(max_length=200, verbose_name="Председатель (KG)", blank=True)
-    chairman_en = models.CharField(max_length=200, verbose_name="Председатель (EN)", blank=True)
-    
-    # Description fields
-    description = models.TextField(verbose_name="Описание (RU)")
-    description_kg = models.TextField(verbose_name="Описание (KG)", blank=True)
-    description_en = models.TextField(verbose_name="Описание (EN)", blank=True)
-    
-    # Members (JSON field for list of members)
-    members = models.JSONField(default=list, verbose_name="Члены (RU)", blank=True)
-    members_kg = models.JSONField(default=list, verbose_name="Члены (KG)", blank=True)
-    members_en = models.JSONField(default=list, verbose_name="Члены (EN)", blank=True)
-    
-    # Responsibilities (JSON field)
-    responsibilities = models.JSONField(default=list, verbose_name="Обязанности (RU)", blank=True)
-    responsibilities_kg = models.JSONField(default=list, verbose_name="Обязанности (KG)", blank=True)
-    responsibilities_en = models.JSONField(default=list, verbose_name="Обязанности (EN)", blank=True)
-    
-    # Category
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, verbose_name="Категория", default='all')
-    
-    # Icon
-    icon = models.CharField(max_length=50, verbose_name="Иконка", default='📋', blank=True)
-    
-    # Contact
-    email = models.EmailField(verbose_name="Email", blank=True)
-    phone = models.CharField(max_length=20, verbose_name="Телефон", blank=True)
-    
-    # System fields
-    is_active = models.BooleanField(default=True, verbose_name="Активен")
-    order = models.IntegerField(default=0, verbose_name="Порядок отображения")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
-    
-    class Meta:
-        verbose_name = "Комиссия"
-        verbose_name_plural = "Комиссии"
-        ordering = ['order', 'name']
-    
-    def __str__(self):
-        return self.name
+    def get_description(self, language="ru"):
+        return getattr(self, f"description_{language}", self.description_ru)
 
 
 class AdministrativeDepartment(models.Model):

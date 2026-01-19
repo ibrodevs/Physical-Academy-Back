@@ -7,14 +7,9 @@ from .models import (
     BoardOfTrustees,
     AuditCommission,
     AcademicCouncil,
-    TradeUnionBenefit,
-    TradeUnionEvent,
-    TradeUnionStats,
-    Commission,
+    Profsoyuz,
     AdministrativeDepartment,
     AdministrativeUnit,
-    BoardOfTrusteesStats,
-    AuditCommissionStatistics,
     Leadership,
     OrganizationStructure,
     Document,
@@ -23,120 +18,45 @@ from .serializers import (
     BoardOfTrusteesSerializer,
     AuditCommissionSerializer,
     AcademicCouncilSerializer,
-    TradeUnionBenefitSerializer,
-    TradeUnionEventSerializer,
-    TradeUnionStatsSerializer,
-    CommissionSerializer,
+    ProfsoyuzSerializer,
     AdministrativeDepartmentSerializer,
     AdministrativeUnitSerializer,
-    BoardOfTrusteesStatsSerializer,
-    AuditCommissionStatisticsSerializer,
     LeadershipSerializer,
     OrganizationStructureSerializer,
     DocumentSerializer,
 )
 
 
-@extend_schema_view(
-    list=extend_schema(
-        summary="Get list of Board of Trustees members",
-        description="Retrieve all active Board of Trustees members with multilingual support (ru, kg, en).",
-        tags=["Leadership Structure - Board of Trustees"],
-        parameters=[
-            OpenApiParameter(
-                name="lang",
-                description="Language code (ru, kg, en)",
-                required=False,
-                type=str,
-            ),
-        ],
-    ),
-    retrieve=extend_schema(
-        summary="Get Board of Trustees member details",
-        description="Retrieve detailed information about a specific trustee.",
-        tags=["Leadership Structure - Board of Trustees"],
-    ),
-)
 class BoardOfTrusteesViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    ViewSet for Board of Trustees members.
-    Provides read-only access with multilingual support.
-    """
+    queryset = BoardOfTrustees.objects.all()
 
     serializer_class = BoardOfTrusteesSerializer
-    filter_backends = [
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    ]
-    search_fields = [
-        "name",
-        "name_kg",
-        "name_en",
-        "position",
-        "position_kg",
-        "position_en",
-    ]
-    ordering_fields = ["order", "name", "created_at"]
-    ordering = ["order", "name"]
 
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return BoardOfTrustees.objects.none()
-        return BoardOfTrustees.objects.filter(is_active=True)
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["language"] = self.request.query_params.get("lang", "ru")
+        return context
 
+   
+class AuditCommissionViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = AuditCommission.objects.all()
+    serializer_class = AuditCommissionSerializer
 
-@extend_schema_view(
-    list=extend_schema(
-        summary="Get Board of Trustees statistics",
-        description="Retrieve statistics for the Board of Trustees page.",
-        tags=["Leadership Structure - Board of Trustees"],
-        parameters=[
-            OpenApiParameter(
-                name="lang",
-                description="Language code (ru, kg, en)",
-                required=False,
-                type=str,
-            ),
-        ],
-    ),
-)
-class BoardOfTrusteesStatsViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet for Board of Trustees Statistics"""
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["language"] = self.request.query_params.get("lang", "ru")
+        return context
 
-    serializer_class = BoardOfTrusteesStatsSerializer
-    filter_backends = [filters.OrderingFilter]
-    ordering_fields = ["order"]
-    ordering = ["order"]
+class ProfsoyuzViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Profsoyuz.objects.all()
+    serializer_class = ProfsoyuzSerializer
 
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return BoardOfTrusteesStats.objects.none()
-        return BoardOfTrusteesStats.objects.filter(is_active=True)
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["language"] = self.request.query_params.get("lang", "ru")
+        return context
 
 
-@extend_schema_view(
-    list=extend_schema(
-        summary="Get list of Audit Commission members",
-        description="Retrieve all active Audit Commission members with multilingual support (ru, kg, en).",
-        tags=["Leadership Structure - Audit Commission"],
-        parameters=[
-            OpenApiParameter(
-                name="lang",
-                description="Language code (ru, kg, en)",
-                required=False,
-                type=str,
-            ),
-        ],
-    ),
-    retrieve=extend_schema(
-        summary="Get Audit Commission member details",
-        description="Retrieve detailed information about a specific commission member.",
-        tags=["Leadership Structure - Audit Commission"],
-    ),
-)
 class AuditCommissionViewSet(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet for Audit Commission members.
@@ -144,14 +64,6 @@ class AuditCommissionViewSet(viewsets.ReadOnlyModelViewSet):
     """
 
     serializer_class = AuditCommissionSerializer
-    filter_backends = [
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    ]
-    search_fields = ["name", "name_kg", "name_en", "position", "department"]
-    ordering_fields = ["order", "name", "created_at"]
-    ordering = ["order", "name"]
 
     def get_queryset(self):
         # Check for swagger schema generation
@@ -175,20 +87,6 @@ class AuditCommissionViewSet(viewsets.ReadOnlyModelViewSet):
         ],
     ),
 )
-class AuditCommissionStatisticsViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet for Audit Commission Statistics"""
-
-    serializer_class = AuditCommissionStatisticsSerializer
-    filter_backends = [filters.OrderingFilter]
-    ordering_fields = ["order"]
-    ordering = ["order"]
-
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return AuditCommissionStatistics.objects.none()
-        return AuditCommissionStatistics.objects.filter(is_active=True)
-
 
 @extend_schema_view(
     list=extend_schema(
@@ -248,173 +146,10 @@ class AcademicCouncilViewSet(viewsets.ReadOnlyModelViewSet):
         ],
     ),
 )
-class TradeUnionBenefitViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet for Trade Union Benefits"""
-
-    serializer_class = TradeUnionBenefitSerializer
-    filter_backends = [filters.OrderingFilter]
-    ordering_fields = ["order", "title"]
-    ordering = ["order"]
-
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return TradeUnionBenefit.objects.none()
-        return TradeUnionBenefit.objects.filter(is_active=True)
 
 
-@extend_schema_view(
-    list=extend_schema(
-        summary="Get list of Trade Union events",
-        description="Retrieve all active Trade Union events with multilingual support (ru, kg, en).",
-        tags=["Leadership Structure - Trade Union"],
-        parameters=[
-            OpenApiParameter(
-                name="lang",
-                description="Language code (ru, kg, en)",
-                required=False,
-                type=str,
-            ),
-        ],
-    ),
-)
-class TradeUnionEventViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet for Trade Union Events"""
-
-    serializer_class = TradeUnionEventSerializer
-    filter_backends = [filters.OrderingFilter]
-    ordering_fields = ["order", "title"]
-    ordering = ["order"]
-
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return TradeUnionEvent.objects.none()
-        return TradeUnionEvent.objects.filter(is_active=True)
 
 
-@extend_schema_view(
-    list=extend_schema(
-        summary="Get Trade Union statistics",
-        description="Retrieve statistics for the Trade Union page.",
-        tags=["Leadership Structure - Trade Union"],
-        parameters=[
-            OpenApiParameter(
-                name="lang",
-                description="Language code (ru, kg, en)",
-                required=False,
-                type=str,
-            ),
-        ],
-    ),
-)
-class TradeUnionStatsViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet for Trade Union Statistics"""
-
-    serializer_class = TradeUnionStatsSerializer
-    filter_backends = [filters.OrderingFilter]
-    ordering_fields = ["order"]
-    ordering = ["order"]
-
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return TradeUnionStats.objects.none()
-        return TradeUnionStats.objects.filter(is_active=True)
-
-
-@extend_schema_view(
-    list=extend_schema(
-        summary="Get list of Commissions",
-        description="Retrieve all active commissions with multilingual support (ru, kg, en). Can be filtered by category.",
-        tags=["Leadership Structure - Commissions"],
-        parameters=[
-            OpenApiParameter(
-                name="lang",
-                description="Language code (ru, kg, en)",
-                required=False,
-                type=str,
-            ),
-            OpenApiParameter(
-                name="category",
-                description="Filter by category (academic, quality, student, methodical, all)",
-                required=False,
-                type=str,
-            ),
-        ],
-    ),
-    retrieve=extend_schema(
-        summary="Get Commission details",
-        description="Retrieve detailed information about a specific commission.",
-        tags=["Leadership Structure - Commissions"],
-    ),
-)
-class CommissionViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    ViewSet for Commissions.
-    Provides read-only access with multilingual support and category filtering.
-    """
-
-    serializer_class = CommissionSerializer
-    filter_backends = [
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    ]
-    filterset_fields = ["category"]
-    search_fields = ["name", "name_kg", "name_en", "chairman"]
-    ordering_fields = ["order", "name", "created_at"]
-    ordering = ["order", "name"]
-
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return Commission.objects.none()
-        return Commission.objects.filter(is_active=True)
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["language"] = self.request.query_params.get("lang", "ru")
-        return context
-
-    @extend_schema(
-        summary="Get commissions by category",
-        description="Filter commissions by specific category",
-        tags=["Leadership Structure - Commissions"],
-    )
-    @action(detail=False, methods=["get"])
-    def by_category(self, request):
-        """Get commissions filtered by category"""
-        category = request.query_params.get("category", "all")
-        if category and category != "all":
-            queryset = self.get_queryset().filter(category=category)
-        else:
-            queryset = self.get_queryset()
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-
-@extend_schema_view(
-    list=extend_schema(
-        summary="Get list of Administrative Departments",
-        description="Retrieve all active administrative departments with multilingual support (ru, kg, en).",
-        tags=["Leadership Structure - Administrative"],
-        parameters=[
-            OpenApiParameter(
-                name="lang",
-                description="Language code (ru, kg, en)",
-                required=False,
-                type=str,
-            ),
-        ],
-    ),
-    retrieve=extend_schema(
-        summary="Get Administrative Department details",
-        description="Retrieve detailed information about a specific department.",
-        tags=["Leadership Structure - Administrative"],
-    ),
-)
 class AdministrativeDepartmentViewSet(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet for Administrative Departments.

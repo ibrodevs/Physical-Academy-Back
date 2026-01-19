@@ -1,15 +1,12 @@
 from django.contrib import admin
-from .models import AcademyAchievements, AcademyInfrastructure, AcademyStatistics, aboutStatistics, AboutPhotos, ImportantDates, HistoryStep, Mission, MissionCategory, Accreditation, AccreditationType
+from .models import AcademyAchievements, AcademyInfrastructure, AcademyStatistics, aboutStatistics, AboutPhotos, Mission, Accreditation,  History
 
 # Register your models here.
 admin.site.register(aboutStatistics)
+admin.site.register(History)
 admin.site.register(AboutPhotos)
-admin.site.register(ImportantDates)
-admin.site.register(HistoryStep)
 admin.site.register(Mission)
-admin.site.register(MissionCategory)
 admin.site.register(Accreditation)
-admin.site.register(AccreditationType)
 admin.site.register(AcademyStatistics)
 admin.site.register(AcademyAchievements)
 admin.site.register(AcademyInfrastructure)

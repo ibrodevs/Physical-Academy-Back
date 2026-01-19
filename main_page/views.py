@@ -2,11 +2,11 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from .models import (
     AcademyInfrastructure,
+    History,
     Mission,
     aboutStatistics,
     AboutPhotos,
-    HistoryStep,
-    ImportantDates,
+
     Accreditation,
     AcademyAchievements,
     AcademyStatistics,
@@ -15,17 +15,25 @@ from .models import (
 from .serializers import (
     AboutPhotosSerializer,
     AboutStatisticsSerializer,
-    HistoryStepSerializer,
-    ImportantDatesSerializer,
+
     MissionSerializer,
     AccreditationSerializer,
     AcademyAchievementsSerializer,
     AcademyStatisticsSerializer,
     AcademyInfrastructureSerializer,
+    HistorySerializer,
 )
 
 # Create your views here.
 
+class HistoryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = History.objects.all()
+    serializer_class = HistorySerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["language"] = self.request.query_params.get("lang", "ru")
+        return context
 
 class AboutStatisticsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = aboutStatistics.objects.all()
@@ -47,24 +55,6 @@ class AboutPhotosViewSet(viewsets.ReadOnlyModelViewSet):
         return context
 
 
-class HistoryStepViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = HistoryStep.objects.all().order_by("year")
-    serializer_class = HistoryStepSerializer
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["language"] = self.request.query_params.get("lang", "ru")
-        return context
-
-
-class ImportantDatesViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = ImportantDates.objects.all().order_by("year")
-    serializer_class = ImportantDatesSerializer
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["language"] = self.request.query_params.get("lang", "ru")
-        return context
 
 
 class MissionViewSet(viewsets.ReadOnlyModelViewSet):

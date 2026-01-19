@@ -5,18 +5,15 @@ from .models import (
     BoardOfTrustees,
     AuditCommission,
     AcademicCouncil,
-    TradeUnionBenefit,
-    TradeUnionEvent,
-    TradeUnionStats,
-    Commission,
+    Profsoyuz,
     AdministrativeDepartment,
     AdministrativeUnit,
-    BoardOfTrusteesStats,
-    AuditCommissionStatistics,
     Leadership,
     OrganizationStructure,
     Document,
 )
+
+
 
 
 class MultiLanguageSerializerMixin:
@@ -70,6 +67,53 @@ class MultiLanguageSerializerMixin:
         # Fallback to Russian
         return getattr(obj, field_name, [])
 
+class AuditCommissionSerializer(serializers.ModelSerializer):
+    text = serializers.SerializerMethodField()
+
+    class Meta:
+        model = AuditCommission
+        fields = [
+            "id",
+            "text",
+        ]
+        
+    def get_text(self, obj) -> str:
+        language = self.context.get("language", "ru")
+        return obj.get_text(language)
+    
+class ProfsoyuzSerializer(serializers.ModelSerializer):
+    """Serializer for Profsoyuz"""
+
+    title = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Profsoyuz
+        fields = [
+            "id",
+            "title",
+
+            "description",
+
+            "image_url",
+        ]
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_title(self, obj) -> str:
+        return self.get_translated_field(obj, "title")
+
+    def get_description(self, obj) -> str:
+        return self.get_translated_field(obj, "description")
+    
+    def get_image_url(self, obj) -> str:
+        if obj.image:
+            request = self.context.get("request")
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+        return None
+
+
 
 class BoardOfTrusteesSerializer(
     MultiLanguageSerializerMixin, serializers.ModelSerializer
@@ -78,32 +122,18 @@ class BoardOfTrusteesSerializer(
 
     name = serializers.SerializerMethodField()
     position = serializers.SerializerMethodField()
-    bio = serializers.SerializerMethodField()
-    achievements = serializers.SerializerMethodField()
     image_url = serializers.SerializerMethodField()
+  
 
     class Meta:
         model = BoardOfTrustees
         fields = [
-            "id",
             "name",
-            "name_kg",
-            "name_en",
+
             "position",
-            "position_kg",
-            "position_en",
-            "bio",
-            "bio_kg",
-            "bio_en",
-            "achievements",
-            "achievements_kg",
-            "achievements_en",
-            "email",
-            "phone",
             "image",
             "image_url",
-            "icon",
-            "order",
+
         ]
 
     @extend_schema_field(OpenApiTypes.STR)
@@ -115,135 +145,13 @@ class BoardOfTrusteesSerializer(
         return self.get_translated_field(obj, "position")
 
     @extend_schema_field(OpenApiTypes.STR)
-    def get_bio(self, obj) -> str:
-        return self.get_translated_field(obj, "bio")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_achievements(self, obj) -> str:
-        return self.get_translated_json_field(obj, "achievements")
-
-    @extend_schema_field(OpenApiTypes.STR)
     def get_image_url(self, obj) -> str:
         if obj.image:
             request = self.context.get("request")
             if request:
                 return request.build_absolute_uri(obj.image.url)
         return None
-
-
-class BoardOfTrusteesStatsSerializer(
-    MultiLanguageSerializerMixin, serializers.ModelSerializer
-):
-    """Serializer for Board of Trustees Statistics"""
-
-    label = serializers.SerializerMethodField()
-    value = serializers.IntegerField(
-        source="target_value"
-    )  # Rename target_value to value for frontend
-    color = serializers.SerializerMethodField()
-
-    class Meta:
-        model = BoardOfTrusteesStats
-        fields = ["id", "label", "value", "icon", "color", "order"]
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_label(self, obj) -> str:
-        return self.get_translated_field(obj, "label")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_color(self, obj) -> str:
-        return f"from-{obj.color_from} to-{obj.color_to}"
-
-
-class AuditCommissionSerializer(
-    MultiLanguageSerializerMixin, serializers.ModelSerializer
-):
-    """Serializer for Audit Commission"""
-
-    name = serializers.SerializerMethodField()
-    position = serializers.SerializerMethodField()
-    department = serializers.SerializerMethodField()
-    achievements = serializers.SerializerMethodField()
-    image_url = serializers.SerializerMethodField()
-
-    class Meta:
-        model = AuditCommission
-        fields = [
-            "id",
-            "name",
-            "name_kg",
-            "name_en",
-            "position",
-            "position_kg",
-            "position_en",
-            "department",
-            "department_kg",
-            "department_en",
-            "achievements",
-            "achievements_kg",
-            "achievements_en",
-            "email",
-            "phone",
-            "image",
-            "image_url",
-            "order",
-        ]
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_name(self, obj) -> str:
-        return self.get_translated_field(obj, "name")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_position(self, obj) -> str:
-        return self.get_translated_field(obj, "position")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_department(self, obj) -> str:
-        return self.get_translated_field(obj, "department")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_achievements(self, obj) -> str:
-        return self.get_translated_json_field(obj, "achievements")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_image_url(self, obj) -> str:
-        if obj.image:
-            request = self.context.get("request")
-            if request:
-                return request.build_absolute_uri(obj.image.url)
-        return None
-
-
-class AuditCommissionStatisticsSerializer(
-    MultiLanguageSerializerMixin, serializers.ModelSerializer
-):
-    """Serializer for Audit Commission Statistics"""
-
-    label = serializers.SerializerMethodField()
-    value = serializers.SerializerMethodField()
-
-    class Meta:
-        model = AuditCommissionStatistics
-        fields = [
-            "id",
-            "label",
-            "label_kg",
-            "label_en",
-            "value",
-            "value_kg",
-            "value_en",
-            "icon",
-            "order",
-        ]
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_label(self, obj) -> str:
-        return self.get_translated_field(obj, "label")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_value(self, obj) -> str:
-        return self.get_translated_field(obj, "value")
-
+\
 
 class AcademicCouncilSerializer(
     MultiLanguageSerializerMixin, serializers.ModelSerializer
@@ -304,196 +212,6 @@ class AcademicCouncilSerializer(
         return None
 
 
-class TradeUnionBenefitSerializer(
-    MultiLanguageSerializerMixin, serializers.ModelSerializer
-):
-    """Serializer for Trade Union Benefits"""
-
-    title = serializers.SerializerMethodField()
-    description = serializers.SerializerMethodField()
-
-    class Meta:
-        model = TradeUnionBenefit
-        fields = [
-            "id",
-            "title",
-            "title_kg",
-            "title_en",
-            "description",
-            "description_kg",
-            "description_en",
-            "icon",
-            "order",
-        ]
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_title(self, obj) -> str:
-        return self.get_translated_field(obj, "title")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_description(self, obj) -> str:
-        return self.get_translated_field(obj, "description")
-
-
-class TradeUnionEventSerializer(
-    MultiLanguageSerializerMixin, serializers.ModelSerializer
-):
-    """Serializer for Trade Union Events"""
-
-    title = serializers.SerializerMethodField()
-    date = serializers.SerializerMethodField()
-    description = serializers.SerializerMethodField()
-    image_url = serializers.SerializerMethodField()
-
-    class Meta:
-        model = TradeUnionEvent
-        fields = [
-            "id",
-            "title",
-            "title_kg",
-            "title_en",
-            "date",
-            "date_kg",
-            "date_en",
-            "description",
-            "description_kg",
-            "description_en",
-            "image",
-            "image_url",
-            "icon",
-            "order",
-        ]
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_title(self, obj) -> str:
-        return self.get_translated_field(obj, "title")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_date(self, obj) -> str:
-        return self.get_translated_field(obj, "date")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_description(self, obj) -> str:
-        return self.get_translated_field(obj, "description")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_image_url(self, obj) -> str:
-        if obj.image:
-            request = self.context.get("request")
-            if request:
-                return request.build_absolute_uri(obj.image.url)
-        return None
-
-
-class TradeUnionStatsSerializer(
-    MultiLanguageSerializerMixin, serializers.ModelSerializer
-):
-    """Serializer for Trade Union Statistics"""
-
-    label = serializers.SerializerMethodField()
-    color = serializers.SerializerMethodField()
-
-    class Meta:
-        model = TradeUnionStats
-        fields = [
-            "id",
-            "label",
-            "label_kg",
-            "label_en",
-            "value",
-            "icon",
-            "color",
-            "order",
-        ]
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_label(self, obj) -> str:
-        return self.get_translated_field(obj, "label")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_color(self, obj) -> str:
-        return f"from-{obj.color_from} to-{obj.color_to}"
-
-
-class CommissionSerializer(MultiLanguageSerializerMixin, serializers.ModelSerializer):
-    """Serializer for Commissions"""
-
-    name = serializers.SerializerMethodField()
-    chairman = serializers.SerializerMethodField()
-    description = serializers.SerializerMethodField()
-    members = serializers.SerializerMethodField()
-    responsibilities = serializers.SerializerMethodField()
-    category_display = serializers.SerializerMethodField()
-
-    # Category translations
-    CATEGORY_TRANSLATIONS = {
-        "academic": {"ru": "Академические", "en": "Academic", "kg": "Академиялык"},
-        "quality": {
-            "ru": "Качество образования",
-            "en": "Quality of Education",
-            "kg": "Билим берүүнүн сапаты",
-        },
-        "student": {"ru": "Студенческие", "en": "Student", "kg": "Студенттик"},
-        "methodical": {"ru": "Методические", "en": "Methodical", "kg": "Методикалык"},
-        "all": {"ru": "Все", "en": "All", "kg": "Баары"},
-    }
-
-    class Meta:
-        model = Commission
-        fields = [
-            "id",
-            "name",
-            "name_kg",
-            "name_en",
-            "chairman",
-            "chairman_kg",
-            "chairman_en",
-            "description",
-            "description_kg",
-            "description_en",
-            "members",
-            "members_kg",
-            "members_en",
-            "responsibilities",
-            "responsibilities_kg",
-            "responsibilities_en",
-            "category",
-            "category_display",
-            "icon",
-            "email",
-            "phone",
-            "order",
-        ]
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_name(self, obj) -> str:
-        return self.get_translated_field(obj, "name")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_chairman(self, obj) -> str:
-        return self.get_translated_field(obj, "chairman")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_description(self, obj) -> str:
-        return self.get_translated_field(obj, "description")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_members(self, obj) -> str:
-        return self.get_translated_json_field(obj, "members")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_responsibilities(self, obj) -> str:
-        return self.get_translated_json_field(obj, "responsibilities")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_category_display(self, obj) -> str:
-        """Get localized category display name"""
-        lang = self.context.get("language", "ru")
-        category = obj.category
-
-        # Get translation from CATEGORY_TRANSLATIONS
-        translations = self.CATEGORY_TRANSLATIONS.get(category, {})
-        return translations.get(lang, translations.get("ru", category))
 
 
 class AdministrativeDepartmentSerializer(

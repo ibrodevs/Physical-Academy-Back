@@ -1,18 +1,37 @@
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 from .models import (
     AcademyInfrastructure,
     AcademyStatistics,
     AcademyAchievements,
     Accreditation,
-    AccreditationType,
     Mission,
-    MissionCategory,
     aboutStatistics,
     AboutPhotos,
-    ImportantDates,
-    HistoryStep,
+    History
 )
 
+
+class HistorySerializer(serializers.ModelSerializer):
+    text = serializers.SerializerMethodField()
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = History
+        fields = ["id", "text", "image_url"]
+
+    def get_text(self, obj):
+        return obj.get_text(self.context.get("language", "ru"))
+    
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_image_url(self, obj):
+        if not obj.image:
+            return None
+        try:
+            return obj.image.url
+        except Exception:
+            return str(obj.image)
 
 class AboutStatisticsSerializer(serializers.ModelSerializer):
     description = serializers.SerializerMethodField()
@@ -36,70 +55,16 @@ class AboutPhotosSerializer(serializers.ModelSerializer):
         return obj.get_description(self.context.get("language", "ru"))
 
 
-class HistoryStepSerializer(serializers.ModelSerializer):
-    title = serializers.SerializerMethodField()
-    description = serializers.SerializerMethodField()
-    achievements = serializers.SerializerMethodField()
-
-    class Meta:
-        model = HistoryStep
-        fields = [
-            "id",
-            "year",
-            "title",
-            "description",
-            "buildings",
-            "students",
-            "programs",
-            "achievements",
-        ]
-
-    def get_title(self, obj):
-        return obj.get_title(self.context.get("language", "ru"))
-
-    def get_description(self, obj):
-        return obj.get_description(self.context.get("language", "ru"))
-
-    def get_achievements(self, obj):
-        language = self.context.get("language", "ru")
-        return (
-            obj.achievements_ru
-            if language == "ru"
-            else obj.achievements_en if language == "en" else obj.achievements_kg
-        )
-
-
-class ImportantDatesSerializer(serializers.ModelSerializer):
-    description = serializers.SerializerMethodField()
-
-    class Meta:
-        model = ImportantDates
-        fields = ["id", "year", "titleInt", "description"]
-
-    def get_description(self, obj):
-        return obj.get_description(self.context.get("language", "ru"))
-
-
-class MissionCategorySerializer(serializers.ModelSerializer):
-    name = serializers.SerializerMethodField()
-
-    class Meta:
-        model = MissionCategory
-        fields = ["id", "name"]
-
-    def get_name(self, obj):
-        lang = self.context.get("language", "ru")
-        return obj.get_name(lang)
 
 
 class MissionSerializer(serializers.ModelSerializer):
-    category = MissionCategorySerializer(read_only=True)
     title = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
+    pdf = serializers.SerializerMethodField()
 
     class Meta:
         model = Mission
-        fields = ["id", "category", "title", "description"]
+        fields = ["id", "pdf", "title", "description"]
 
     def get_title(self, obj):
         return obj.get_title(self.context.get("language", "ru"))
@@ -107,50 +72,52 @@ class MissionSerializer(serializers.ModelSerializer):
     def get_description(self, obj):
         return obj.get_description(self.context.get("language", "ru"))
 
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_pdf(self, obj) -> str | None:
+        language = self.context.get("language", "ru")
+        pdf = getattr(obj, f"pdf_{language}", None)
+        if not pdf:
+            return None
+        try:
+            return pdf.url
+        except Exception:
+            return str(pdf)
+        
 
-class AccreditationTypeSerializer(serializers.ModelSerializer):
-    name = serializers.SerializerMethodField()
-
-    class Meta:
-        model = AccreditationType
-        fields = ["id", "name"]
-
-    def get_name(self, obj):
-        lang = self.context.get("language", "ru")
-        return obj.get_name(lang)
 
 
 class AccreditationSerializer(serializers.ModelSerializer):
-    accreditation_type = AccreditationTypeSerializer(read_only=True)
-    organization = serializers.SerializerMethodField()
-    validity = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
+    pdf = serializers.SerializerMethodField()
 
     class Meta:
         model = Accreditation
         fields = [
-            "id",
-            "accreditation_type",
-            "organization",
-            "validity",
+            "name",
             "description",
-            "photo",
-            "logo",
-            "certificate_number",
+            "pdf",
         ]
-
-    def get_organization(self, obj):
-        lang = self.context.get("language", "ru")
-        return obj.get_organization(lang)
-
-    def get_validity(self, obj):
-        lang = self.context.get("language", "ru")
-        return obj.get_validity(lang)
 
     def get_description(self, obj):
         lang = self.context.get("language", "ru")
         return obj.get_description(lang)
 
+    def get_name(self, obj):
+        lang = self.context.get("language", "ru")
+        return obj.get_name(lang)
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_pdf(self, obj) -> str | None:
+        language = self.context.get("language", "ru")
+        pdf = getattr(obj, f"pdf_{language}", None)
+        if not pdf:
+            return None
+        try:
+            return pdf.url
+        except Exception:
+            return str(pdf)
+        
 
 class AcademyStatisticsSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()

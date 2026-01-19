@@ -1,111 +1,19 @@
 from django.contrib import admin
 from .models import (
     BoardOfTrustees, AuditCommission, AcademicCouncil,
-    TradeUnionBenefit, TradeUnionEvent, TradeUnionStats,
-    Commission, AdministrativeDepartment, AdministrativeUnit,
-    BoardOfTrusteesStats, AuditCommissionStatistics,
-    Leadership, OrganizationStructure, Document
+    AdministrativeDepartment, AdministrativeUnit,
+    Leadership, OrganizationStructure, Document, Profsoyuz
 )
 
 
-@admin.register(BoardOfTrustees)
-class BoardOfTrusteesAdmin(admin.ModelAdmin):
-    list_display = ['name', 'position', 'email', 'phone', 'is_active', 'order']
-    list_filter = ['is_active', 'created_at']
-    search_fields = ['name', 'name_kg', 'name_en', 'position', 'email']
-    ordering = ['order', 'name']
-    list_editable = ['order', 'is_active']
-    
-    fieldsets = (
-        ('Основная информация (RU)', {
-            'fields': ('name', 'position', 'bio', 'achievements')
-        }),
-        ('Киргизский (KG)', {
-            'fields': ('name_kg', 'position_kg', 'bio_kg', 'achievements_kg'),
-            'classes': ('collapse',)
-        }),
-        ('Английский (EN)', {
-            'fields': ('name_en', 'position_en', 'bio_en', 'achievements_en'),
-            'classes': ('collapse',)
-        }),
-        ('Контакты и медиа', {
-            'fields': ('email', 'phone', 'image', 'icon')
-        }),
-        ('Системные поля', {
-            'fields': ('is_active', 'order'),
-        }),
-    )
+admin.site.register(BoardOfTrustees)
+admin.site.register(Profsoyuz)
 
 
-@admin.register(BoardOfTrusteesStats)
-class BoardOfTrusteesStatsAdmin(admin.ModelAdmin):
-    list_display = ['label', 'target_value', 'icon', 'is_active', 'order']
-    list_filter = ['is_active']
-    search_fields = ['label', 'label_kg', 'label_en']
-    ordering = ['order']
-    list_editable = ['order', 'is_active']
-    
-    fieldsets = (
-        ('Основная информация', {
-            'fields': ('label', 'label_kg', 'label_en', 'target_value')
-        }),
-        ('Оформление', {
-            'fields': ('icon', 'color_from', 'color_to')
-        }),
-        ('Системные поля', {
-            'fields': ('is_active', 'order'),
-        }),
-    )
 
 
-@admin.register(AuditCommission)
-class AuditCommissionAdmin(admin.ModelAdmin):
-    list_display = ['name', 'position', 'department', 'email', 'is_active', 'order']
-    list_filter = ['is_active', 'created_at']
-    search_fields = ['name', 'name_kg', 'name_en', 'position', 'department', 'email']
-    ordering = ['order', 'name']
-    list_editable = ['order', 'is_active']
-    
-    fieldsets = (
-        ('Основная информация (RU)', {
-            'fields': ('name', 'position', 'department', 'achievements')
-        }),
-        ('Киргизский (KG)', {
-            'fields': ('name_kg', 'position_kg', 'department_kg', 'achievements_kg'),
-            'classes': ('collapse',)
-        }),
-        ('Английский (EN)', {
-            'fields': ('name_en', 'position_en', 'department_en', 'achievements_en'),
-            'classes': ('collapse',)
-        }),
-        ('Контакты и медиа', {
-            'fields': ('email', 'phone', 'image')
-        }),
-        ('Системные поля', {
-            'fields': ('is_active', 'order'),
-        }),
-    )
+admin.site.register(AuditCommission)
 
-
-@admin.register(AuditCommissionStatistics)
-class AuditCommissionStatisticsAdmin(admin.ModelAdmin):
-    list_display = ['label', 'value', 'icon', 'is_active', 'order']
-    list_filter = ['is_active']
-    search_fields = ['label', 'label_kg', 'label_en']
-    ordering = ['order']
-    list_editable = ['order', 'is_active']
-    
-    fieldsets = (
-        ('Основная информация', {
-            'fields': ('label', 'label_kg', 'label_en', 'value', 'value_kg', 'value_en')
-        }),
-        ('Оформление', {
-            'fields': ('icon',)
-        }),
-        ('Системные поля', {
-            'fields': ('is_active', 'order'),
-        }),
-    )
 
 
 @admin.register(AcademicCouncil)
@@ -136,113 +44,6 @@ class AcademicCouncilAdmin(admin.ModelAdmin):
         }),
     )
 
-
-@admin.register(TradeUnionBenefit)
-class TradeUnionBenefitAdmin(admin.ModelAdmin):
-    list_display = ['title', 'icon', 'is_active', 'order']
-    list_filter = ['is_active', 'created_at']
-    search_fields = ['title', 'title_kg', 'title_en', 'description']
-    ordering = ['order', 'title']
-    list_editable = ['order', 'is_active']
-    
-    fieldsets = (
-        ('Основная информация (RU)', {
-            'fields': ('title', 'description')
-        }),
-        ('Киргизский (KG)', {
-            'fields': ('title_kg', 'description_kg'),
-            'classes': ('collapse',)
-        }),
-        ('Английский (EN)', {
-            'fields': ('title_en', 'description_en'),
-            'classes': ('collapse',)
-        }),
-        ('Оформление', {
-            'fields': ('icon',)
-        }),
-        ('Системные поля', {
-            'fields': ('is_active', 'order'),
-        }),
-    )
-
-
-@admin.register(TradeUnionEvent)
-class TradeUnionEventAdmin(admin.ModelAdmin):
-    list_display = ['title', 'date', 'icon', 'is_active', 'order']
-    list_filter = ['is_active', 'created_at']
-    search_fields = ['title', 'title_kg', 'title_en', 'description']
-    ordering = ['order', 'title']
-    list_editable = ['order', 'is_active']
-    
-    fieldsets = (
-        ('Основная информация (RU)', {
-            'fields': ('title', 'date', 'description')
-        }),
-        ('Киргизский (KG)', {
-            'fields': ('title_kg', 'date_kg', 'description_kg'),
-            'classes': ('collapse',)
-        }),
-        ('Английский (EN)', {
-            'fields': ('title_en', 'date_en', 'description_en'),
-            'classes': ('collapse',)
-        }),
-        ('Медиа и оформление', {
-            'fields': ('image', 'icon')
-        }),
-        ('Системные поля', {
-            'fields': ('is_active', 'order'),
-        }),
-    )
-
-
-@admin.register(TradeUnionStats)
-class TradeUnionStatsAdmin(admin.ModelAdmin):
-    list_display = ['label', 'value', 'icon', 'is_active', 'order']
-    list_filter = ['is_active']
-    search_fields = ['label', 'label_kg', 'label_en']
-    ordering = ['order']
-    list_editable = ['order', 'is_active', 'value']
-    
-    fieldsets = (
-        ('Основная информация', {
-            'fields': ('label', 'label_kg', 'label_en', 'value')
-        }),
-        ('Оформление', {
-            'fields': ('icon', 'color_from', 'color_to')
-        }),
-        ('Системные поля', {
-            'fields': ('is_active', 'order'),
-        }),
-    )
-
-
-@admin.register(Commission)
-class CommissionAdmin(admin.ModelAdmin):
-    list_display = ['name', 'chairman', 'category', 'email', 'is_active', 'order']
-    list_filter = ['is_active', 'category', 'created_at']
-    search_fields = ['name', 'name_kg', 'name_en', 'chairman', 'description']
-    ordering = ['order', 'name']
-    list_editable = ['order', 'is_active']
-    
-    fieldsets = (
-        ('Основная информация (RU)', {
-            'fields': ('name', 'chairman', 'description', 'members', 'responsibilities')
-        }),
-        ('Киргизский (KG)', {
-            'fields': ('name_kg', 'chairman_kg', 'description_kg', 'members_kg', 'responsibilities_kg'),
-            'classes': ('collapse',)
-        }),
-        ('Английский (EN)', {
-            'fields': ('name_en', 'chairman_en', 'description_en', 'members_en', 'responsibilities_en'),
-            'classes': ('collapse',)
-        }),
-        ('Категория и контакты', {
-            'fields': ('category', 'icon', 'email', 'phone')
-        }),
-        ('Системные поля', {
-            'fields': ('is_active', 'order'),
-        }),
-    )
 
 
 @admin.register(AdministrativeDepartment)
