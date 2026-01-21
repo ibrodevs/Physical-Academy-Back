@@ -37,19 +37,14 @@ class BoardOfTrustees(models.Model):
 
 class AuditCommission(models.Model):
     """Ревизионная комиссия / Audit Commission"""
-    text_ru = models.CharField(max_length=200, verbose_name="Текст (RU)")
-    text_kg = models.CharField(max_length=200, verbose_name="Текст (KG)")
-    text_en = models.CharField(max_length=200, verbose_name="Текст (EN)")
-    is_active = models.BooleanField(default=True, verbose_name="Активен")
-    order = models.IntegerField(default=0, verbose_name="Порядок отображения")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
+    text_ru = RichTextUploadingField(max_length=200, verbose_name="Текст (RU)")
+    text_kg = RichTextUploadingField(max_length=200, verbose_name="Текст (KG)", blank=True, null=True)
+    text_en = RichTextUploadingField(max_length=200, verbose_name="Текст (EN)", blank=True, null=True)
     
     
     class Meta:
         verbose_name = "Член  комиссии"
         verbose_name_plural = " комиссия"
-        ordering = ["order", "id"]
     
     def __str__(self):
         return self.text_ru
