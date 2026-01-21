@@ -302,11 +302,11 @@ class Leadership(models.Model):
     order = models.IntegerField(default=0, verbose_name="Порядок отображения", null=True, blank=True)
     
     class Meta:
-        verbose_name = "Руководство академии"
-        verbose_name_plural = "Руководство академии"
+        verbose_name = "Ректорат академии"
+        verbose_name_plural = "Ректорат академии"
 
     def __str__(self):
-        return self.name
+        return self.name_ru
     
     def get_name(self, language="ru"):
         return getattr(self, f"name_{language}", self.name_ru)
