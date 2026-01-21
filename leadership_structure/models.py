@@ -284,85 +284,39 @@ class AuditCommissionStatistics(models.Model):
 class Leadership(models.Model):
     """Руководство академии / Academy Leadership (для /leadership/)"""
     
-    LEADERSHIP_TYPE_CHOICES = [
-        ('rector', 'Ректор'),
-        ('vice_rector', 'Проректор'),
-        ('director', 'Директор'),
-        ('deputy_director', 'Заместитель директора'),
-        ('department_head', 'Заведующий кафедрой'),
-        ('dean', 'Декан'),
-        ('vice_dean', 'Заместитель декана'),
-    ]
+    photo = CloudinaryField(verbose_name="Фото", blank=True, null=True)
+
+    position_ru = models.CharField(max_length=200, verbose_name="Должность (RU)", blank=True, null=True)
+    position_kg = models.CharField(max_length=200, verbose_name="Должность (KG)", blank=True, null=True)
+    position_en = models.CharField(max_length=200, verbose_name="Должность (EN)", blank=True, null=True)
     
     # Name fields
-    name = models.CharField(max_length=200, verbose_name="ФИО (RU)")
-    name_kg = models.CharField(max_length=200, verbose_name="ФИО (KG)", blank=True)
-    name_en = models.CharField(max_length=200, verbose_name="ФИО (EN)", blank=True)
-    
-    # Position fields
-    position = models.CharField(max_length=200, verbose_name="Должность (RU)")
-    position_kg = models.CharField(max_length=200, verbose_name="Должность (KG)", blank=True)
-    position_en = models.CharField(max_length=200, verbose_name="Должность (EN)", blank=True)
-    
-    # Leadership type
-    leadership_type = models.CharField(
-        max_length=50, 
-        choices=LEADERSHIP_TYPE_CHOICES,
-        verbose_name="Тип руководства",
-        default='department_head'
-    )
-    
-    # Department/Faculty
-    department = models.CharField(max_length=200, verbose_name="Подразделение (RU)", blank=True)
-    department_kg = models.CharField(max_length=200, verbose_name="Подразделение (KG)", blank=True)
-    department_en = models.CharField(max_length=200, verbose_name="Подразделение (EN)", blank=True)
-    
-    # Bio fields
-    bio = models.TextField(verbose_name="Биография (RU)", blank=True)
-    bio_kg = models.TextField(verbose_name="Биография (KG)", blank=True)
-    bio_en = models.TextField(verbose_name="Биография (EN)", blank=True)
-    
-    # Achievements
-    achievements = models.JSONField(default=list, verbose_name="Достижения (RU)", blank=True)
-    achievements_kg = models.JSONField(default=list, verbose_name="Достижения (KG)", blank=True)
-    achievements_en = models.JSONField(default=list, verbose_name="Достижения (EN)", blank=True)
-    
-    # Education/Qualifications
-    education = models.TextField(verbose_name="Образование (RU)", blank=True)
-    education_kg = models.TextField(verbose_name="Образование (KG)", blank=True)
-    education_en = models.TextField(verbose_name="Образование (EN)", blank=True)
-    
-    # Contact information
-    email = models.EmailField(verbose_name="Email", blank=True)
-    phone = models.CharField(max_length=20, verbose_name="Телефон", blank=True)
-    
-    # Image
-    image = models.ImageField(upload_to='leadership/', verbose_name="Фото", blank=True, null=True)
-    
-    # Years of experience
-    experience_years = models.PositiveIntegerField(
-        default=0, 
-        verbose_name="Лет опыта",
-        validators=[MinValueValidator(0)]
-    )
-    
-    # Icon
-    icon = models.CharField(max_length=50, verbose_name="Иконка", default='👤', blank=True)
-    
-    # System fields
-    is_active = models.BooleanField(default=True, verbose_name="Активен")
-    order = models.IntegerField(default=0, verbose_name="Порядок отображения")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
+    name_ru = models.CharField(max_length=200, verbose_name="ФИО (RU)", blank=True, null=True)
+    name_kg = models.CharField(max_length=200, verbose_name="ФИО (KG)", blank=True, null=True)
+    name_en = models.CharField(max_length=200, verbose_name="ФИО (EN)", blank=True, null=True)
+
+    bio_kg = RichTextUploadingField(verbose_name="Биография (KG)", blank=True, null=True)
+    bio_en = RichTextUploadingField(verbose_name="Биография (EN)", blank=True, null=True)
+    bio_ru = RichTextUploadingField(verbose_name="Биография (RU)" , blank=True, null=True)
+
+    order = models.IntegerField(default=0, verbose_name="Порядок отображения", null=True, blank=True)
     
     class Meta:
-        verbose_name = "Руководство"
-        verbose_name_plural = "Руководство"
-        ordering = ['order', 'name']
-    
-    def __str__(self):
-        return f"{self.name} - {self.position}"
+        verbose_name = "Руководство академии"
+        verbose_name_plural = "Руководство академии"
 
+    def __str__(self):
+        return self.name
+    
+    def get_name(self, language="ru"):
+        return getattr(self, f"name_{language}", self.name_ru)
+
+    def get_position(self, language="ru"):
+        return getattr(self, f"position_{language}", self.position_ru)
+    
+    def get_bio(self, language="ru"):
+        return getattr(self, f"bio_{language}", self.bio_ru)
+    
 
 class OrganizationStructure(models.Model):
     """Организационная структура / Organization Structure (для /organization-structure/)"""

@@ -108,31 +108,7 @@ class AdministrativeUnitAdmin(admin.ModelAdmin):
 
 @admin.register(Leadership)
 class LeadershipAdmin(admin.ModelAdmin):
-    list_display = ['name', 'position', 'leadership_type', 'department', 'email', 'is_active', 'order']
-    list_filter = ['leadership_type', 'is_active', 'created_at']
-    search_fields = ['name', 'name_kg', 'name_en', 'position', 'department', 'email']
-    ordering = ['order', 'name']
-    list_editable = ['order', 'is_active']
-    
-    fieldsets = (
-        ('Основная информация (RU)', {
-            'fields': ('name', 'position', 'leadership_type', 'department', 'bio', 'achievements', 'education')
-        }),
-        ('Киргизский (KG)', {
-            'fields': ('name_kg', 'position_kg', 'department_kg', 'bio_kg', 'achievements_kg', 'education_kg'),
-            'classes': ('collapse',)
-        }),
-        ('Английский (EN)', {
-            'fields': ('name_en', 'position_en', 'department_en', 'bio_en', 'achievements_en', 'education_en'),
-            'classes': ('collapse',)
-        }),
-        ('Контакты и медиа', {
-            'fields': ('email', 'phone', 'image', 'experience_years', 'icon')
-        }),
-        ('Системные поля', {
-            'fields': ('is_active', 'order'),
-        }),
-    )
+    pass
 
 
 @admin.register(OrganizationStructure)

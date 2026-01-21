@@ -23,8 +23,10 @@ from .serializers import (
     AdministrativeUnitSerializer,
     LeadershipSerializer,
     OrganizationStructureSerializer,
+    LeadershipSerializer,
     DocumentSerializer,
 )
+
 
 
 class BoardOfTrusteesViewSet(viewsets.ReadOnlyModelViewSet):
@@ -72,42 +74,6 @@ class AuditCommissionViewSet(viewsets.ReadOnlyModelViewSet):
         return AuditCommission.objects.filter(is_active=True)
 
 
-@extend_schema_view(
-    list=extend_schema(
-        summary="Get Audit Commission statistics",
-        description="Retrieve statistics for the Audit Commission page.",
-        tags=["Leadership Structure - Audit Commission"],
-        parameters=[
-            OpenApiParameter(
-                name="lang",
-                description="Language code (ru, kg, en)",
-                required=False,
-                type=str,
-            ),
-        ],
-    ),
-)
-
-@extend_schema_view(
-    list=extend_schema(
-        summary="Get list of Academic Council members",
-        description="Retrieve all active Academic Council members with multilingual support (ru, kg, en).",
-        tags=["Leadership Structure - Academic Council"],
-        parameters=[
-            OpenApiParameter(
-                name="lang",
-                description="Language code (ru, kg, en)",
-                required=False,
-                type=str,
-            ),
-        ],
-    ),
-    retrieve=extend_schema(
-        summary="Get Academic Council member details",
-        description="Retrieve detailed information about a specific council member.",
-        tags=["Leadership Structure - Academic Council"],
-    ),
-)
 class AcademicCouncilViewSet(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet for Academic Council members.
@@ -225,60 +191,9 @@ class AdministrativeUnitViewSet(viewsets.ReadOnlyModelViewSet):
 # ========== NEW VIEWSETS FOR MISSING APIs ==========
 
 
-@extend_schema_view(
-    list=extend_schema(
-        summary="Get list of Leadership members",
-        description="Retrieve all active Leadership members (ректорат) with multilingual support.",
-        tags=["Leadership Structure - Leadership"],
-        parameters=[
-            OpenApiParameter(
-                name="lang",
-                description="Language code (ru, kg, en)",
-                required=False,
-                type=str,
-            ),
-            OpenApiParameter(
-                name="leadership_type",
-                description="Filter by leadership type",
-                required=False,
-                type=str,
-            ),
-            OpenApiParameter(
-                name="search",
-                description="Search by name, position, or department",
-                required=False,
-                type=str,
-            ),
-        ],
-    ),
-    retrieve=extend_schema(
-        summary="Get Leadership member details",
-        description="Retrieve detailed information about a specific leadership member.",
-        tags=["Leadership Structure - Leadership"],
-    ),
-)
 class LeadershipViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    ViewSet for Leadership members (ректорат).
-    Provides read-only access with multilingual support and filtering.
-    """
-
+    queryset = Leadership.objects.all().order_by('order')
     serializer_class = LeadershipSerializer
-    filter_backends = [
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    ]
-    filterset_fields = ["leadership_type"]
-    search_fields = ["name", "name_kg", "name_en", "position", "department"]
-    ordering_fields = ["order", "name", "created_at"]
-    ordering = ["order", "name"]
-
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return Leadership.objects.none()
-        return Leadership.objects.filter(is_active=True)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()

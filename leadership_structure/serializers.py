@@ -325,99 +325,41 @@ class AdministrativeUnitSerializer(
 # ========== NEW SERIALIZERS FOR MISSING APIs ==========
 
 
-class LeadershipSerializer(MultiLanguageSerializerMixin, serializers.ModelSerializer):
+class LeadershipSerializer( serializers.ModelSerializer):
     """Сериалайзер для Leadership (для /leadership/)"""
 
     name = serializers.SerializerMethodField()
     position = serializers.SerializerMethodField()
-    department = serializers.SerializerMethodField()
     bio = serializers.SerializerMethodField()
-    achievements = serializers.SerializerMethodField()
-    education = serializers.SerializerMethodField()
-    leadership_type_display = serializers.SerializerMethodField()
-
-    # Leadership type translations
-    LEADERSHIP_TYPE_TRANSLATIONS = {
-        "rector": {"ru": "Ректор", "en": "Rector", "kg": "Ректор"},
-        "vice_rector": {
-            "ru": "Проректор",
-            "en": "Vice-Rector",
-            "kg": "Проректордун орун басары",
-        },
-        "director": {"ru": "Директор", "en": "Director", "kg": "Директор"},
-        "deputy_director": {
-            "ru": "Заместитель директора",
-            "en": "Deputy Director",
-            "kg": "Директордун орун басары",
-        },
-        "department_head": {
-            "ru": "Заведующий кафедрой",
-            "en": "Department Head",
-            "kg": "Кафедра башчысы",
-        },
-        "dean": {"ru": "Декан", "en": "Dean", "kg": "Декан"},
-        "vice_dean": {
-            "ru": "Заместитель декана",
-            "en": "Vice Dean",
-            "kg": "Декандын орун басары",
-        },
-    }
-
+    image_url = serializers.SerializerMethodField()
+    
     class Meta:
         model = Leadership
         fields = [
             "id",
+            'photo',
+            'order',
             "name",
-            "position",
-            "leadership_type",
-            "leadership_type_display",
-            "department",
             "bio",
-            "achievements",
-            "education",
-            "email",
-            "phone",
-            "image",
-            "experience_years",
-            "icon",
-            "is_active",
-            "order",
+            'image_url',
+            "position",
         ]
 
-    @extend_schema_field(OpenApiTypes.STR)
     def get_name(self, obj) -> str:
-        return self.get_translated_field(obj, "name")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_position(self, obj) -> str:
-        return self.get_translated_field(obj, "position")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_department(self, obj) -> str:
-        return self.get_translated_field(obj, "department")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_bio(self, obj) -> str:
-        return self.get_translated_field(obj, "bio")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_achievements(self, obj) -> str:
-        return self.get_translated_json_field(obj, "achievements")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_education(self, obj) -> str:
-        return self.get_translated_field(obj, "education")
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_leadership_type_display(self, obj) -> str:
-        """Get localized leadership type display name"""
-        lang = self.context.get("language", "ru")
-        leadership_type = obj.leadership_type
-
-        # Get translation from LEADERSHIP_TYPE_TRANSLATIONS
-        translations = self.LEADERSHIP_TYPE_TRANSLATIONS.get(leadership_type, {})
-        return translations.get(lang, translations.get("ru", leadership_type))
-
+        return obj.get_name(self.context.get("language", "ru"))
+    
+    def get_position(self, obj):
+        return obj.get_position(self.context.get("language", "ru"))
+    
+    def get_bio(self, obj):
+        return obj.get_bio(self.context.get("language", "ru"))
+    
+    def get_image_url(self, obj) -> str:
+        if obj.photo:
+            request = self.context.get("request")
+            if request:
+                return request.build_absolute_uri(obj.photo.url)
+        return None
 
 class OrganizationStructureSerializer(
     MultiLanguageSerializerMixin, serializers.ModelSerializer
