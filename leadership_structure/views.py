@@ -58,22 +58,6 @@ class ProfsoyuzViewSet(viewsets.ReadOnlyModelViewSet):
         context["language"] = self.request.query_params.get("lang", "ru")
         return context
 
-
-class AuditCommissionViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    ViewSet for Audit Commission members.
-    Provides read-only access with multilingual support.
-    """
-
-    serializer_class = AuditCommissionSerializer
-
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return AuditCommission.objects.none()
-        return AuditCommission.objects.filter(is_active=True)
-
-
 class AcademicCouncilViewSet(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet for Academic Council members.
