@@ -232,17 +232,22 @@ class AdministrativeUnitSerializer(serializers.ModelSerializer
 ):
     """Serializer for Administrative Units"""
     text = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
 
     class Meta:
         model = AdministrativeUnit
         fields = [
             "id",
-            'text'
+            'text',
+            'name',
         ]
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_text(self, obj) -> str:
         return obj.get_text(self.context.get("language", "ru"))
+
+    def get_name(self, obj) -> str:
+        return obj.get_name(self.context.get("language", "ru"))
 
 # ========== NEW SERIALIZERS FOR MISSING APIs ==========
 

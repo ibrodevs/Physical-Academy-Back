@@ -266,7 +266,6 @@ class Department(models.Model):
         on_delete=models.CASCADE,
         related_name="departments",
         verbose_name=_("Таб"),
-        limit_choices_to={"key": "departments"},
     )
 
     # Многоязычные поля для названия кафедры

@@ -140,6 +140,10 @@ class AdministrativeDepartment(models.Model):
 
 class AdministrativeUnit(models.Model):
     """Административные подразделения / Administrative Units"""
+    name_ru = models.CharField(max_length=200, verbose_name="Название (RU)")
+    name_kg = models.CharField(max_length=200, verbose_name="Название (KG)", blank=True)
+    name_en = models.CharField(max_length=200, verbose_name="Название (EN)", blank=True)
+
     text_ru = RichTextUploadingField(max_length=200, verbose_name="Текст (RU)")
     text_kg = RichTextUploadingField(max_length=200, verbose_name="Текст (KG)", blank=True, null=True)
     text_en = RichTextUploadingField(max_length=200, verbose_name="Текст (EN)", blank=True, null=True)
@@ -154,6 +158,9 @@ class AdministrativeUnit(models.Model):
 
     def get_text(self, language="ru"):
         return getattr(self, f"text_{language}", self.text_ru)
+    
+    def get_name(self, language="ru"):
+        return getattr(self, f"name_{language}", self.name_ru)
 
 class BoardOfTrusteesStats(models.Model):
     """Статистика попечительского совета / Board of Trustees Statistics"""

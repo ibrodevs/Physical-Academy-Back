@@ -153,6 +153,7 @@ class AboutFaculty(models.Model):
         return value if value else self.text_ru
 
 
+
 class Management(models.Model):
     """Руководство факультета (Management)"""
 
