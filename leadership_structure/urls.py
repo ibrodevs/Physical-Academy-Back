@@ -6,10 +6,12 @@ from .views import (
     ProfsoyuzViewSet,
     AcademicCouncilViewSet,
     AdministrativeDepartmentViewSet, AdministrativeUnitViewSet,
-    LeadershipViewSet, OrganizationStructureViewSet, DocumentViewSet
+    LeadershipViewSet, OrganizationStructureViewSet, DocumentViewSet, CommissionViewSet
 )
 
 router = DefaultRouter()
+
+router.register(r'commissions', CommissionViewSet, basename='commissions')
 
 # Board of Trustees
 router.register(r'board-of-trustees', BoardOfTrusteesViewSet, basename='board-of-trustees')

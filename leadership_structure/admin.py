@@ -2,47 +2,18 @@ from django.contrib import admin
 from .models import (
     BoardOfTrustees, AuditCommission, AcademicCouncil,
     AdministrativeDepartment, AdministrativeUnit,
-    Leadership, OrganizationStructure, Document, Profsoyuz
+    Leadership, OrganizationStructure, Document, Profsoyuz, Commission
 )
 
 
 admin.site.register(BoardOfTrustees)
 admin.site.register(Profsoyuz)
 
-
+admin.site.register(AcademicCouncil)
+admin.site.register(Commission)
 
 
 admin.site.register(AuditCommission)
-
-
-
-@admin.register(AcademicCouncil)
-class AcademicCouncilAdmin(admin.ModelAdmin):
-    list_display = ['name', 'position', 'department', 'email', 'is_active', 'order']
-    list_filter = ['is_active', 'created_at']
-    search_fields = ['name', 'name_kg', 'name_en', 'position', 'department', 'email']
-    ordering = ['order', 'name']
-    list_editable = ['order', 'is_active']
-    
-    fieldsets = (
-        ('Основная информация (RU)', {
-            'fields': ('name', 'position', 'department', 'achievements')
-        }),
-        ('Киргизский (KG)', {
-            'fields': ('name_kg', 'position_kg', 'department_kg', 'achievements_kg'),
-            'classes': ('collapse',)
-        }),
-        ('Английский (EN)', {
-            'fields': ('name_en', 'position_en', 'department_en', 'achievements_en'),
-            'classes': ('collapse',)
-        }),
-        ('Контакты и медиа', {
-            'fields': ('email', 'phone', 'image')
-        }),
-        ('Системные поля', {
-            'fields': ('is_active', 'order'),
-        }),
-    )
 
 
 
@@ -74,35 +45,7 @@ class AdministrativeDepartmentAdmin(admin.ModelAdmin):
         }),
     )
 
-
-@admin.register(AdministrativeUnit)
-class AdministrativeUnitAdmin(admin.ModelAdmin):
-    list_display = ['name', 'head', 'location', 'staff', 'email', 'is_active', 'order']
-    list_filter = ['is_active', 'color', 'created_at']
-    search_fields = ['name', 'name_kg', 'name_en', 'head', 'description', 'email']
-    ordering = ['order', 'name']
-    list_editable = ['order', 'is_active']
-    
-    fieldsets = (
-        ('Основная информация (RU)', {
-            'fields': ('name', 'description', 'head', 'location', 'staff', 'responsibilities')
-        }),
-        ('Киргизский (KG)', {
-            'fields': ('name_kg', 'description_kg', 'head_kg', 'location_kg', 'staff_kg', 'responsibilities_kg'),
-            'classes': ('collapse',)
-        }),
-        ('Английский (EN)', {
-            'fields': ('name_en', 'description_en', 'head_en', 'location_en', 'staff_en', 'responsibilities_en'),
-            'classes': ('collapse',)
-        }),
-        ('Контакты и оформление', {
-            'fields': ('email', 'phone', 'icon', 'color', 'color_class')
-        }),
-        ('Системные поля', {
-            'fields': ('is_active', 'order'),
-        }),
-    )
-
+admin.site.register(AdministrativeUnit)
 
 # ========== NEW ADMIN INTERFACES FOR MISSING APIS ==========
 
@@ -139,31 +82,4 @@ class OrganizationStructureAdmin(admin.ModelAdmin):
         }),
     )
 
-
-@admin.register(Document)
-class DocumentAdmin(admin.ModelAdmin):
-    list_display = ['title', 'document_type', 'document_number', 'document_date', 'file_format', 'is_featured', 'is_active', 'order']
-    list_filter = ['document_type', 'is_featured', 'is_active', 'document_date', 'created_at']
-    search_fields = ['title', 'title_kg', 'title_en', 'description', 'document_number']
-    ordering = ['-document_date', 'order', 'title']
-    list_editable = ['order', 'is_active', 'is_featured']
-    
-    fieldsets = (
-        ('Основная информация (RU)', {
-            'fields': ('title', 'document_type', 'description')
-        }),
-        ('Киргизский (KG)', {
-            'fields': ('title_kg', 'description_kg'),
-            'classes': ('collapse',)
-        }),
-        ('Английский (EN)', {
-            'fields': ('title_en', 'description_en'),
-            'classes': ('collapse',)
-        }),
-        ('Документ и метаданные', {
-            'fields': ('file', 'document_number', 'document_date', 'file_size', 'file_format', 'icon')
-        }),
-        ('Системные поля', {
-            'fields': ('is_active', 'is_featured', 'order'),
-        }),
-    )
+admin.site.register(Document)

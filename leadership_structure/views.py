@@ -7,6 +7,7 @@ from .models import (
     BoardOfTrustees,
     AuditCommission,
     AcademicCouncil,
+    Commission,
     Profsoyuz,
     AdministrativeDepartment,
     AdministrativeUnit,
@@ -18,6 +19,7 @@ from .serializers import (
     BoardOfTrusteesSerializer,
     AuditCommissionSerializer,
     AcademicCouncilSerializer,
+    CommissionSerializer,
     ProfsoyuzSerializer,
     AdministrativeDepartmentSerializer,
     AdministrativeUnitSerializer,
@@ -28,6 +30,14 @@ from .serializers import (
 )
 
 
+class CommissionViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Commission.objects.all()
+    serializer_class = CommissionSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["language"] = self.request.query_params.get("lang", "ru")
+        return context
 
 class BoardOfTrusteesViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = BoardOfTrustees.objects.all()
@@ -59,26 +69,14 @@ class ProfsoyuzViewSet(viewsets.ReadOnlyModelViewSet):
         return context
 
 class AcademicCouncilViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    ViewSet for Academic Council members.
-    Provides read-only access with multilingual support.
-    """
-
+    queryset = AcademicCouncil.objects.all()
     serializer_class = AcademicCouncilSerializer
-    filter_backends = [
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    ]
-    search_fields = ["name", "name_kg", "name_en", "position", "department"]
-    ordering_fields = ["order", "name", "created_at"]
-    ordering = ["order", "name"]
 
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return AcademicCouncil.objects.none()
-        return AcademicCouncil.objects.filter(is_active=True)
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["language"] = self.request.query_params.get("lang", "ru")
+        return context
+
 
 
 @extend_schema_view(
@@ -123,54 +121,18 @@ class AdministrativeDepartmentViewSet(viewsets.ReadOnlyModelViewSet):
         return AdministrativeDepartment.objects.filter(is_active=True)
 
 
-@extend_schema_view(
-    list=extend_schema(
-        summary="Get list of Administrative Units",
-        description="Retrieve all active administrative units with multilingual support (ru, kg, en).",
-        tags=["Leadership Structure - Administrative"],
-        parameters=[
-            OpenApiParameter(
-                name="lang",
-                description="Language code (ru, kg, en)",
-                required=False,
-                type=str,
-            ),
-            OpenApiParameter(
-                name="search",
-                description="Search by name, description, or head",
-                required=False,
-                type=str,
-            ),
-        ],
-    ),
-    retrieve=extend_schema(
-        summary="Get Administrative Unit details",
-        description="Retrieve detailed information about a specific unit.",
-        tags=["Leadership Structure - Administrative"],
-    ),
-)
 class AdministrativeUnitViewSet(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet for Administrative Units.
     Provides read-only access with multilingual support and search functionality.
     """
-
+    queryset = AdministrativeUnit.objects.all()
     serializer_class = AdministrativeUnitSerializer
-    filter_backends = [
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    ]
-    search_fields = ["name", "name_kg", "name_en", "description", "head"]
-    ordering_fields = ["order", "name", "created_at"]
-    ordering = ["order", "name"]
-
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return AdministrativeUnit.objects.none()
-        return AdministrativeUnit.objects.filter(is_active=True)
-
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["language"] = self.request.query_params.get("lang", "ru")
+        return context
 
 # ========== NEW VIEWSETS FOR MISSING APIs ==========
 
@@ -259,75 +221,16 @@ class OrganizationStructureViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
 
-@extend_schema_view(
-    list=extend_schema(
-        summary="Get list of Documents",
-        description="Retrieve all active documents with multilingual support and filtering.",
-        tags=["Leadership Structure - Documents"],
-        parameters=[
-            OpenApiParameter(
-                name="lang",
-                description="Language code (ru, kg, en)",
-                required=False,
-                type=str,
-            ),
-            OpenApiParameter(
-                name="document_type",
-                description="Filter by document type",
-                required=False,
-                type=str,
-            ),
-            OpenApiParameter(
-                name="is_featured",
-                description="Filter featured documents",
-                required=False,
-                type=bool,
-            ),
-            OpenApiParameter(
-                name="search",
-                description="Search by title or description",
-                required=False,
-                type=str,
-            ),
-        ],
-    ),
-    retrieve=extend_schema(
-        summary="Get Document details",
-        description="Retrieve detailed information about a specific document.",
-        tags=["Leadership Structure - Documents"],
-    ),
-)
 class DocumentViewSet(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet for Documents.
     Provides read-only access with multilingual support and filtering.
     """
-
+    queryset = Document.objects.all()
     serializer_class = DocumentSerializer
-    filter_backends = [
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    ]
-    filterset_fields = ["document_type", "is_featured"]
-    search_fields = ["title", "title_kg", "title_en", "description", "document_number"]
-    ordering_fields = ["order", "title", "document_date", "created_at"]
-    ordering = ["-document_date", "order", "title"]
-
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return Document.objects.none()
-        return Document.objects.filter(is_active=True)
-
+   
+ 
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context["language"] = self.request.query_params.get("lang", "ru")
         return context
-
-    @action(detail=False, methods=["get"])
-    def featured(self, request):
-        """Get featured documents"""
-        featured_docs = self.get_queryset().filter(is_featured=True)
-        serializer = self.get_serializer(featured_docs, many=True)
-        return Response(serializer.data)
