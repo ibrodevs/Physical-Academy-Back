@@ -38,6 +38,8 @@ urlpatterns = [
     path("api/faculties/military/", include("military_faculty.urls")),
     path("api/faculties/correspondence/", include("correspondence_faculty.urls")),
     path("api/faculties/pedagogical/", include("pedagogical_faculty.urls")),
+    path("api/faculties/college/", include("college.urls")),
+    path("api/college/", include("college.urls")),
     # General Departments API
     path("api/general-departments/", include("general_departments.urls")),
     # Education API (магистратура, докторантура, колледж)

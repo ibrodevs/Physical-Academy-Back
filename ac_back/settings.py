@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     "military_faculty",
     "correspondence_faculty",
     "pedagogical_faculty",
+    "college",  # Колледж
     "general_departments",  # Общие кафедры
     "education",  # Образование (магистратура, докторантура, колледж)
     "ckeditor_uploader",
