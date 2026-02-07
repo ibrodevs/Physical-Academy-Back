@@ -689,7 +689,7 @@ class BachelorFaculties(models.Model):
 
 class Doctorate(models.Model):
     """
-    model for магистратура
+    model for доктурантура
     """
     text_ru = RichTextUploadingField(verbose_name='инфо на русском')
     text_kg = RichTextUploadingField(verbose_name='инфо на кыргызский')
@@ -705,8 +705,8 @@ class Doctorate(models.Model):
 
 
     class Meta:
-        verbose_name= 'магистратура'
-        verbose_name_plural= 'магистратура'
+        verbose_name= 'доктурантура'
+        verbose_name_plural= 'доктурантура'
 
 
     def get_text(self, lang):
