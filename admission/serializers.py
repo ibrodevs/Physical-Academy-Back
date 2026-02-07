@@ -493,16 +493,20 @@ class BachelorProgramsSerializer(serializers.ModelSerializer):
     faculties = serializers.SerializerMethodField()
     ruling = serializers.SerializerMethodField()
     pdf = serializers.SerializerMethodField()
+    file_name= serializers.SerializerMethodField()
    
     class Meta:
         model = BachelorProgram
         fields = [
-            'faculties', 'pdf', 'ruling'
+            'faculties', 'pdf', 'ruling', 'file_name'
         ]
 
     def get_faculties(self, obj):
         faculties = obj.faculties.all()
         return BachelorFacultiesSerializer(faculties, many=True, context=self.context).data
+
+    def get_file_name(self, obj):
+        return obj.get_file_name(lang=self.context.get('language', 'ru'))
 
     def get_pdf(self, obj):
         pdf_file = obj.get_pdf(lang=self.context.get('language', 'ru'))

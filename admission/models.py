@@ -646,12 +646,19 @@ class BachelorProgram(models.Model):
     pdf_kg = models.FileField(verbose_name='pdf (kg)')
     pdf_en = models.FileField(verbose_name='pdf (en)')
 
+    file_name_ru = models.CharField(verbose_name='имя файла на русском')
+    file_name_en = models.CharField(verbose_name='имя файла на английском')
+    file_name_kg = models.CharField(verbose_name='имя файла на кыргызском')
 
     def get_ruling(self, lang='ru'):
         return getattr(self, f'ruling_{lang}')
     
     def get_pdf(self, lang='ru'):
         return getattr(self, f'pdf_{lang}')
+        
+    def get_file_name(self, lang='ru'):
+        return getattr(self, f'file_name_{lang}')
+
 
     def __str__(self):
         return 'бакалавр'
