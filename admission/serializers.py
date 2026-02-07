@@ -7,7 +7,6 @@ from .models import (
     CollegePrograms,
     CollegeSoonEvents,
     CollegeStatistics,
-    DoctorSoonEvents,
     QuotaType,
     QuotaRequirement,
     QuotaBenefit,
@@ -20,7 +19,6 @@ from .models import (
     AspirantRequirements,
     Master,
     Doctorate,
-    DoctorPrograms,
     BachelorProgram,
     BachelorFaculties
 )
@@ -299,148 +297,6 @@ class AspirantDocumentsSerializer(serializers.ModelSerializer):
         """Получить название документа на нужном языке"""
         language = self.context.get("language", "ru")
         return obj.get_document_name(language)
-
-
-  
-class DoctorAdmissionStepsSerializer(serializers.Serializer):
-    """Сериализатор для шагов приема в докторантуру"""
-
-    title = serializers.SerializerMethodField()
-    description = serializers.SerializerMethodField()
-    deadline = serializers.SerializerMethodField()
-    requirement = serializers.SerializerMethodField()
-
-    class Meta:
-        model = DoctorAdmissionSteps
-        fields = [
-            "id",
-            "order",
-        ]
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_title(self, obj) -> str:
-        """Получить название шага на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_title(language)
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_description(self, obj) -> str:
-        """Получить описание шага на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_description(language)
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_deadline(self, obj) -> str:
-        """Получить крайний срок шага на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_deadline(language)
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_requirement(self, obj) -> str:
-        """Получить требования шага на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_requirement(language)
-
-
-class DoctorStatisticsSerializer(serializers.ModelSerializer):
-    """Сериализатор для статистики докторантуры"""
-
-    description = serializers.SerializerMethodField()
-
-    class Meta:
-        model = DoctorStatistics
-        fields = [
-            "titleInt",
-            "description",
-        ]
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_description(self, obj) -> str:
-        """Получить описание на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_description(language)
-
-
-class DoctorProgramsShortSerializer(serializers.ModelSerializer):
-    """Сериализатор для программ докторантуры"""
-
-    program_name = serializers.SerializerMethodField()
-    features = serializers.SerializerMethodField()
-    short_description = serializers.SerializerMethodField()
-
-    class Meta:
-        model = DoctorPrograms
-        fields = ["id", "program_name", "duration", "features", "short_description"]
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_program_name(self, obj) -> str:
-        """Получить название программы на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_program_name(language)
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_features(self, obj) -> str:
-        """Получить особенности программы на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_features(language)
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_short_description(self, obj) -> str:
-        """Получить краткое описание программы на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_short_description(language)
-
-
-class DoctorProgramsFullSerializer(serializers.ModelSerializer):
-    """Сериализатор для подробной информации о программе докторантуры"""
-
-    program_name = serializers.SerializerMethodField()
-    description = serializers.SerializerMethodField()
-    features = serializers.SerializerMethodField()
-
-    class Meta:
-        model = DoctorPrograms
-        fields = [
-            "id",
-            "program_name",
-            "description",
-            "features",
-            "duration",
-        ]
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_program_name(self, obj) -> str:
-        """Получить название программы на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_program_name(language)
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_description(self, obj) -> str:
-        """Получить описание программы на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_description(language)
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_features(self, obj) -> str:
-        """Получить особенности программы на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_features(language)
-
-
-class DoctorSoonEventsSerializer(serializers.Serializer):
-    """Сериализатор для предстоящих событий докторантуры"""
-
-    event = serializers.SerializerMethodField()
-
-    class Meta:
-        model = DoctorSoonEvents
-        fields = ["event", "date"]
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_event(self, obj) -> str:
-        """Получить событие на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_event(language)
 
 
 class CollegeSoonEventsSerializer(serializers.Serializer):
