@@ -60,7 +60,7 @@ INSTALLED_APPS = [
     "django_filters",
     # 'drf_yasg', удалил, так как используется drf_spectacular
     # Local apps
-    "student_clubs",
+    "students",
     "leadership_structure",
     "admission",
     "main_page",

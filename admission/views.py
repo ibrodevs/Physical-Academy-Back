@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework import generics
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from .models import (
@@ -8,24 +9,18 @@ from .models import (
     CollegePrograms,
     CollegeSoonEvents,
     CollegeStatistics,
-    DoctorPrograms,
-    DoctorSoonEvents,
-    DoctorStatistics,
+    Doctorate,
     QuotaType,
     QuotaRequirement,
     QuotaBenefit,
     QuotaStats,
     AdditionalSupport,
     ProcessStep,
-    MasterDocuments,
-    MasterPrograms,
-    MasterMainDate,
-    MasterRequirements,
+    Master,
     AspirantDocuments,
     AspirantPrograms,
     AspirantMainDate,
     AspirantRequirements,
-    DoctorAdmissionSteps,
     BachelorProgram,
 )
 from .serializers import (
@@ -34,11 +29,7 @@ from .serializers import (
     CollegeProgramsShortSerializer,
     CollegeSoonEventsSerializer,
     CollegeStatisticsSerializer,
-    DoctorProgramsFullSerializer,
-    DoctorProgramsShortSerializer,
-    DoctorSoonEventsSerializer,
-    DoctorStatisticsSerializer,
-    DoctorStatisticsSerializer,
+    DoctorateSerializer,
     QuotaTypeSerializer,
     QuotaRequirementSerializer,
     QuotaBenefitSerializer,
@@ -46,39 +37,15 @@ from .serializers import (
     AdditionalSupportSerializer,
     ProcessStepSerializer,
     BachelorQuotasDataSerializer,
-    MasterDocumentsSerializer,
-    MasterProgramsSerializer,
-    MasterMainDateSerializer,
-    MasterRequirementsSerializer,
+    MasterSerializer,
     AspirantDocumentsSerializer,
     AspirantProgramsSerializer,
     AspirantMainDateSerializer,
     AspirantRequirementsSerializer,
-    DoctorAdmissionStepsSerializer,
     BachelorProgramsSerializer,
 )
 
 
-class BachelorProgramViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    ViewSet для программ бакалавриата
-    """
-
-    serializer_class = BachelorProgramsSerializer
-    queryset = BachelorProgram.objects.all()
-
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return BachelorProgram.objects.none()
-        return BachelorProgram.objects.all()
-
-    def get_serializer_context(self):
-        """Передаём язык в контекст сериализатора"""
-        context = super().get_serializer_context()
-        language = self.request.query_params.get("lang", "ru")
-        context["language"] = language
-        return context
 
 
 class QuotaTypeViewSet(viewsets.ReadOnlyModelViewSet):
@@ -251,82 +218,29 @@ class BachelorQuotasViewSet(viewsets.GenericViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class MasterDocumentsViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet для документов магистратуры"""
-
-    serializer_class = MasterDocumentsSerializer
-    queryset = MasterDocuments.objects.filter(is_active=True).order_by("order")
-
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return MasterDocuments.objects.none()
-        return super().get_queryset().filter(is_active=True).order_by("order")
+class MasterListAPIView(generics.ListAPIView):
+    queryset = Master.objects.all()
+    serializer_class = MasterSerializer
 
     def get_serializer_context(self):
         """Передаём язык в контекст сериализатора"""
         context = super().get_serializer_context()
-        # язык берём из query-параметра, например ?lang=en
-        language = self.request.query_params.get("lang", "ru")
-        context["language"] = language
+        context["language"] = self.request.query_params.get("lang", "ru")
         return context
 
 
-class MasterProgramsViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet для программ магистратуры"""
 
-    queryset = MasterPrograms.objects.filter(is_active=True)
-    serializer_class = MasterProgramsSerializer
+class DoctorateListAPIView(generics.ListAPIView):
+    queryset = Doctorate.objects.all()
+    serializer_class = DoctorateSerializer
 
     def get_serializer_context(self):
         """Передаём язык в контекст сериализатора"""
         context = super().get_serializer_context()
-        # язык берём из query-параметра, например ?lang=en
-        language = self.request.query_params.get("lang", "ru")
-        context["language"] = language
+        context["language"] = self.request.query_params.get("lang", "ru")
         return context
 
 
-class MasterMainDateViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet для основных дат магистратуры"""
-
-    serializer_class = MasterMainDateSerializer
-    queryset = MasterMainDate.objects.filter(is_active=True).order_by("order")
-
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return MasterMainDate.objects.none()
-        return super().get_queryset().filter(is_active=True).order_by("order")
-
-    def get_serializer_context(self):
-        """Передаём язык в контекст сериализатора"""
-        context = super().get_serializer_context()
-        # язык берём из query-параметра, например ?lang=en
-        language = self.request.query_params.get("lang", "ru")
-        context["language"] = language
-        return context
-
-
-class MasterRequirementsViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet для требований магистратуры"""
-
-    serializer_class = MasterRequirementsSerializer
-    queryset = MasterRequirements.objects.filter(is_active=True).order_by("order")
-
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return MasterRequirements.objects.none()
-        return super().get_queryset().filter(is_active=True).order_by("order")
-
-    def get_serializer_context(self):
-        """Передаём язык в контекст сериализатора"""
-        context = super().get_serializer_context()
-        # язык берём из query-параметра, например ?lang=en
-        language = self.request.query_params.get("lang", "ru")
-        context["language"] = language
-        return context
 
 
 class AspirantDocumentsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -403,106 +317,6 @@ class AspirantRequirementsViewSet(viewsets.ReadOnlyModelViewSet):
         if getattr(self, "swagger_fake_view", False):
             return AspirantRequirements.objects.none()
         return super().get_queryset().filter(is_active=True).order_by("order")
-
-    def get_serializer_context(self):
-        """Передаём язык в контекст сериализатора"""
-        context = super().get_serializer_context()
-        # язык берём из query-параметра, например ?lang=en
-        language = self.request.query_params.get("lang", "ru")
-        context["language"] = language
-        return context
-
-
-class DoctorAdmissionStepsViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet для шагов поступления в докторантуру"""
-
-    serializer_class = DoctorAdmissionStepsSerializer
-    queryset = DoctorAdmissionSteps.objects.filter(is_active=True).order_by("order")
-
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return DoctorAdmissionSteps.objects.none()
-        return super().get_queryset().filter(is_active=True).order_by("order")
-
-    def get_serializer_context(self):
-        """Передаём язык в контекст сериализатора"""
-        context = super().get_serializer_context()
-        # язык берём из query-параметра, например ?lang=en
-        language = self.request.query_params.get("lang", "ru")
-        context["language"] = language
-        return context
-
-
-class DoctorStatisticsViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet для статистики докторантуры"""
-
-    serializer_class = DoctorStatisticsSerializer
-    queryset = DoctorStatistics.objects.order_by("id")
-
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return DoctorStatistics.objects.none()
-        return super().get_queryset().order_by("id")
-
-    def get_serializer_context(self):
-        """Передаём язык в контекст сериализатора"""
-        context = super().get_serializer_context()
-        # язык берём из query-параметра, например ?lang=en
-        language = self.request.query_params.get("lang", "ru")
-        context["language"] = language
-        return context
-
-
-class DoctorProgramsViewSet(viewsets.ViewSet):
-    """
-    ViewSet для программ докторантуры.
-    - GET /doctor-programs/ → список всех программ (короткая информация)
-    - GET /doctor-programs/?id=<id> → полная информация по одной программе
-    - Поддержка языков через query-параметр ?lang=<ru|ky|en>
-    """
-
-    serializer_class = (
-        DoctorProgramsShortSerializer  # Default serializer for schema generation
-    )
-    queryset = DoctorPrograms.objects.none()  # Empty queryset for schema generation
-
-    def list(self, request):
-        program_id = request.query_params.get("id")
-        language = request.query_params.get("lang", "ru")  # default 'ru'
-
-        if program_id:
-            # Получаем конкретную программу по id
-            try:
-                program = DoctorPrograms.objects.get(id=program_id)
-            except DoctorPrograms.DoesNotExist:
-                return Response({"detail": "Program not found"}, status=404)
-
-            serializer = DoctorProgramsFullSerializer(
-                program, context={"language": language}
-            )
-            return Response(serializer.data)
-        else:
-            # Список всех программ с короткой информацией
-            programs = DoctorPrograms.objects.all()
-            serializer = DoctorProgramsShortSerializer(
-                programs, many=True, context={"language": language}
-            )
-            return Response(serializer.data)
-
-
-class DoctorSoonEventsViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet для предстоящих событий докторантуры"""
-
-    serializer_class = DoctorSoonEventsSerializer
-    queryset = DoctorSoonEvents.objects.filter(is_active=True).order_by("date")
-
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return DoctorSoonEvents.objects.none()
-        return super().get_queryset().filter(is_active=True).order_by("date")
 
     def get_serializer_context(self):
         """Передаём язык в контекст сериализатора"""

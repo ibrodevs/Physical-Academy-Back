@@ -1,5 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from ckeditor_uploader.fields import RichTextUploadingField
+
 
 
 class QuotaType(models.Model):
@@ -259,173 +261,36 @@ class ProcessStep(models.Model):
         return value if value else self.description_ru
 
 
-class MasterDocuments(models.Model):
-    """Модель для документов магистратуры"""
+class Master(models.Model):
+    """
+    model for магистратура
+    """
+    text_ru = RichTextUploadingField(verbose_name='инфо на русском')
+    text_kg = RichTextUploadingField(verbose_name='инфо на кыргызский')
+    text_en = RichTextUploadingField(verbose_name='инфо на английский')
 
-    # Многоязычные поля для названия документа
-    document_name_ru = models.CharField(
-        max_length=200, verbose_name=_("Document Name (Russian)")
-    )
-    document_name_kg = models.CharField(
-        max_length=200, verbose_name=_("Document Name (Kyrgyz)")
-    )
-    document_name_en = models.CharField(
-        max_length=200, verbose_name=_("Document Name (English)")
-    )
+    file_name_ru = models.CharField(max_length=233, verbose_name='название pdf файла на русском ')
+    file_name_en = models.CharField(max_length=233, verbose_name='название pdf файла на английском ')
+    file_name_kg = models.CharField(max_length=233, verbose_name='название pdf файла на русском ')
 
-    file = models.FileField(upload_to="master_documents/", verbose_name=_("File"))
+    pdf_ru = models.FileField(verbose_name='pdf (ru)')
+    pdf_kg = models.FileField(verbose_name='pdf (kg)')
+    pdf_en = models.FileField(verbose_name='pdf (en)')
 
-    order = models.PositiveIntegerField(default=0, verbose_name=_("Display order"))
-    is_active = models.BooleanField(default=True, verbose_name=_("Is active"))
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["order"]
-        verbose_name = _("Master Document")
-        verbose_name_plural = _("Master Documents")
-
-    def __str__(self):
-        return self.document_name_ru
-
-    def get_document_name(self, language="ru"):
-        """Получить название документа на указанном языке"""
-        value = getattr(self, f"document_name_{language}", None)
-        return value if value else self.document_name_ru
+        verbose_name= 'магистратура'
+        verbose_name_plural= 'магистратура'
 
 
-class MasterMainDate(models.Model):
-    """Модель для основных дат магистратуры"""
+    def get_text(self, lang):
+        return getattr(self, f'text_{lang}', self.text_ru)
 
-    # Многоязычные поля для названия события
-    event_name_ru = models.CharField(
-        max_length=200, verbose_name=_("Event Name (Russian)")
-    )
-    event_name_kg = models.CharField(
-        max_length=200, verbose_name=_("Event Name (Kyrgyz)")
-    )
-    event_name_en = models.CharField(
-        max_length=200, verbose_name=_("Event Name (English)")
-    )
-
-    # Многоязычные поля для даты/периода
-    date = models.CharField(max_length=100, verbose_name=_("Date/Period (Russian)"))
-    date_kg = models.CharField(
-        max_length=100, verbose_name=_("Date/Period (Kyrgyz)"), blank=True
-    )
-    date_en = models.CharField(
-        max_length=100, verbose_name=_("Date/Period (English)"), blank=True
-    )
-
-    order = models.PositiveIntegerField(default=0, verbose_name=_("Display order"))
-    is_active = models.BooleanField(default=True, verbose_name=_("Is active"))
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["order"]
-        verbose_name = _("Master Main Date")
-        verbose_name_plural = _("Master Main Dates")
-
-    def __str__(self):
-        return self.event_name_ru
-
-    def get_event_name(self, language="ru"):
-        """Получить название события на указанном языке"""
-        value = getattr(self, f"event_name_{language}", None)
-        return value if value else self.event_name_ru
-
-    def get_date(self, language="ru"):
-        """Получить дату на указанном языке"""
-        if language == "ru":
-            return self.date
-        value = getattr(self, f"date_{language}", None)
-        return value if value else self.date
-
-
-class MasterPrograms(models.Model):
-    """Модель для программ магистратуры"""
-
-    program_name_ru = models.CharField(max_length=200, verbose_name=_("Program Name"))
-    program_name_kg = models.CharField(max_length=200, verbose_name=_("Program Name"))
-    program_name_en = models.CharField(max_length=200, verbose_name=_("Program Name"))
-
-    description_ru = models.TextField(verbose_name=_("Description (Russian)"))
-    description_kg = models.TextField(verbose_name=_("Description (Kyrgyz)"))
-    description_en = models.TextField(verbose_name=_("Description (English)"))
-
-    features_ru = models.JSONField(
-        verbose_name=_("Features (Russian, default=list, null=True, blank=True)")
-    )
-    features_kg = models.JSONField(
-        verbose_name=_("Features (Kyrgyz, default=list, null=True, blank=True)")
-    )
-    features_en = models.JSONField(
-        verbose_name=_("Features (English, default=list, null=True, blank=True)")
-    )
-
-    order = models.PositiveIntegerField(default=0, verbose_name=_("Display order"))
-    is_active = models.BooleanField(default=True, verbose_name=_("Is active"))
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["order", "program_name_ru"]
-        verbose_name = _("Master Program")
-        verbose_name_plural = _("Master Programs")
-
-    def __str__(self):
-        return self.program_name_ru
-
-    def get_program_name(self, language="ru"):
-        """Получить название программы на указанном языке"""
-        value = getattr(self, f"program_name_{language}", None)
-        return value if value else self.program_name_ru
-
-    def get_description(self, language="ru"):
-        """Получить описание программы на указанном языке"""
-        value = getattr(self, f"description_{language}", None)
-        return value if value else self.description_ru
-
-    def get_features(self, language="ru"):
-        """Получить особенности программы на указанном языке"""
-        value = getattr(self, f"features_{language}", None)
-        return value if value else self.features_ru
-
-
-class MasterRequirements(models.Model):
-    title_ru = models.CharField(max_length=200, verbose_name=_("Title (Russian)"))
-    title_kg = models.CharField(max_length=200, verbose_name=_("Title (Kyrgyz)"))
-    title_en = models.CharField(max_length=200, verbose_name=_("Title (English)"))
-
-    description_ru = models.TextField(verbose_name=_("Description (Russian)"))
-    description_kg = models.TextField(verbose_name=_("Description (Kyrgyz)"))
-    description_en = models.TextField(verbose_name=_("Description (English)"))
-
-    order = models.PositiveIntegerField(default=0, verbose_name=_("Display order"))
-    is_active = models.BooleanField(default=True, verbose_name=_("Is active"))
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["order", "title_ru"]
-        verbose_name = _("Master Requirement")
-        verbose_name_plural = _("Master Requirements")
-
-    def get_title(self, language="ru"):
-        """Получить название на указанном языке"""
-        value = getattr(self, f"title_{language}", None)
-        return value if value else self.title_ru
-
-    def get_description(self, language="ru"):
-        """Получить описание на указанном языке"""
-        value = getattr(self, f"description_{language}", None)
-        return value if value else self.description_ru
-
+    def get_file_name(self, lang):
+        return getattr(self, f'file_name_{lang}', self.file_name_ru)
+   
+    def get_pdf(self, lang):
+        return getattr(self, f'pdf_{lang}', self.pdf_ru)
 
 class AspirantMainDate(models.Model):
     """Модель для основных дат аспирантуры"""
@@ -581,176 +446,6 @@ class AspirantDocuments(models.Model):
         return value if value else self.document_name_ru
 
 
-class DoctorAdmissionSteps(models.Model):
-    """Модель для информации о приеме в докторантуру"""
-
-    title_ru = models.TextField(verbose_name=_("Title (Russian)"))
-    title_kg = models.TextField(verbose_name=_("Title (Kyrgyz)"))
-    title_en = models.TextField(verbose_name=_("Title (English)"))
-
-    description_ru = models.TextField(verbose_name=_("Description (Russian)"))
-    description_kg = models.TextField(verbose_name=_("Description (Kyrgyz)"))
-    description_en = models.TextField(verbose_name=_("Description (English)"))
-
-    deadline_ru = models.TextField(verbose_name=_("Deadline (Russian)"))
-    deadline_kg = models.TextField(verbose_name=_("Deadline (Kyrgyz)"))
-    deadline_en = models.TextField(verbose_name=_("Deadline (English)"))
-
-    requirement_ru = models.TextField(verbose_name=_("Requirement (Russian)"))
-    requirement_kg = models.TextField(verbose_name=_("Requirement (Kyrgyz)"))
-    requirement_en = models.TextField(verbose_name=_("Requirement (English)"))
-
-    order = models.PositiveIntegerField(verbose_name=_("Display order"))
-    is_active = models.BooleanField(default=True, verbose_name=_("Is active"))
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["order"]
-        verbose_name = _("Doctor Admission Info")
-        verbose_name_plural = _("Doctor Admission Info")
-
-    def __str__(self):
-        return self.title_en[:50]
-
-    def get_title(self, language="ru"):
-        """Получить название на указанном языке"""
-        value = getattr(self, f"title_{language}", None)
-        return value if value else self.title_ru
-
-    def get_description(self, language="ru"):
-        """Получить описание на указанном языке"""
-        value = getattr(self, f"description_{language}", None)
-        return value if value else self.description_ru
-
-    def get_deadline(self, language="ru"):
-        """Получить дедлайн на указанном языке"""
-        value = getattr(self, f"deadline_{language}", None)
-        return value if value else self.deadline_ru
-
-    def get_requirement(self, language="ru"):
-        """Получить требование на указанном языке"""
-        value = getattr(self, f"requirement_{language}", None)
-        return value if value else self.requirement_ru
-
-
-class DoctorStatistics(models.Model):
-    titleInt = models.CharField(max_length=200, verbose_name=_("Title (Russian)"))
-
-    description_ru = models.TextField(verbose_name=_("Description (Russian)"))
-    description_kg = models.TextField(verbose_name=_("Description (Kyrgyz)"))
-    description_en = models.TextField(verbose_name=_("Description (English)"))
-
-    class Meta:
-        verbose_name = _("Doctor Statistics")
-        verbose_name_plural = _("Doctor Statistics")
-
-    def __str__(self):
-        return self.titleInt
-
-    def get_description(self, language="ru"):
-        """Получить описание на указанном языке"""
-        value = getattr(self, f"description_{language}", None)
-        return value if value else self.description_ru
-
-
-class DoctorPrograms(models.Model):
-    """Модель для программ докторантуры"""
-
-    program_name_ru = models.CharField(
-        max_length=200, verbose_name=_("Program Name(russian)")
-    )
-    program_name_kg = models.CharField(
-        max_length=200, verbose_name=_("Program Name(kyrgyz)")
-    )
-    program_name_en = models.CharField(
-        max_length=200, verbose_name=_("Program Name(english)")
-    )
-
-    short_description_ru = models.CharField(
-        max_length=300, verbose_name=_("Short Description (Russian)")
-    )
-    short_description_kg = models.CharField(
-        max_length=300, verbose_name=_("Short   Description (Kyrgyz)")
-    )
-    short_description_en = models.CharField(
-        max_length=300, verbose_name=_("Short Description (English)")
-    )
-
-    description_ru = models.TextField(verbose_name=_("Description (Russian)"))
-    description_kg = models.TextField(verbose_name=_("Description (Kyrgyz)"))
-    description_en = models.TextField(verbose_name=_("Description (English)"))
-
-    features_ru = models.JSONField(
-        verbose_name=_("Features (Russian, default=list, null=True, blank=True)"),
-        default=list,
-    )
-    features_kg = models.JSONField(
-        verbose_name=_("Features (Kyrgyz, default=list, null=True, blank=True)"),
-        default=list,
-    )
-    features_en = models.JSONField(
-        verbose_name=_("Features (English, default=list, null=True, blank=True)"),
-        default=list,
-    )
-
-    duration = models.PositiveBigIntegerField(verbose_name=_("Duration (years)"))
-
-    order = models.PositiveIntegerField(default=0, verbose_name=_("Display order"))
-    is_active = models.BooleanField(default=True, verbose_name=_("Is active"))
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["order", "program_name_ru"]
-        verbose_name = _("Doctor Program")
-        verbose_name_plural = _("Doctor Programs")
-
-    def __str__(self):
-        return self.program_name_ru
-
-    def get_program_name(self, language="ru"):
-        """Получить название программы на указанном языке"""
-        value = getattr(self, f"program_name_{language}", None)
-        return value if value else self.program_name_ru
-
-    def get_description(self, language="ru"):
-        """Получить описание программы на указанном языке"""
-        value = getattr(self, f"description_{language}", None)
-        return value if value else self.description_ru
-
-    def get_features(self, language="ru"):
-        """Получить особенности программы на указанном языке"""
-        value = getattr(self, f"features_{language}", None)
-        return value if value else self.features_ru
-
-    def get_short_description(self, language="ru"):
-        """Получить краткое описание программы на указанном языке"""
-        value = getattr(self, f"short_description_{language}", None)
-        return value if value else self.short_description_ru
-
-
-class DoctorSoonEvents(models.Model):
-    event_ru = models.CharField(max_length=200, verbose_name=_("Event (Russian)"))
-    event_kg = models.CharField(max_length=200, verbose_name=_("Event (Kyrgyz)"))
-    event_en = models.CharField(max_length=200, verbose_name=_("Event (English)"))
-    date = models.CharField(max_length=100, verbose_name=_("Date/Period"))
-    is_active = models.BooleanField(default=True, verbose_name=_("Is active"))
-
-    class Meta:
-        ordering = ["date"]
-        verbose_name = _("Doctor Soon Event")
-        verbose_name_plural = _("Doctor Soon Events")
-
-    def __str__(self):
-        return self.event_ru
-
-    def get_event(self, language="ru"):
-        """Получить событие на указанном языке"""
-        value = getattr(self, f"event_{language}", None)
-        return value if value else self.event_ru
 
 
 class CollegeSoonEvents(models.Model):
@@ -941,93 +636,77 @@ class CollegeStatistics(models.Model):
         return value if value else self.description_ru
 
 
+
 class BachelorProgram(models.Model):
-    name_ru = models.CharField(
-        max_length=200, verbose_name="Название программы (русский)"
-    )
-    name_en = models.CharField(
-        max_length=200, verbose_name="Название программы (английский)"
-    )
-    name_kg = models.CharField(
-        max_length=200, verbose_name="Название программы (киргизский)"
-    )
+    ruling_ru = RichTextUploadingField(verbose_name="правила приема на русском")
+    ruling_kg = RichTextUploadingField(verbose_name="правила приема на кыргызском")
+    ruling_en = RichTextUploadingField(verbose_name="правила приема на английском")
 
-    description_ru = models.TextField(verbose_name="Описание программы (русский)")
-    description_en = models.TextField(verbose_name="Описание программы (английский)")
-    description_kg = models.TextField(verbose_name="Описание программы (киргизский)")
+    pdf_ru = models.FileField(verbose_name='pdf (ru)')
+    pdf_kg = models.FileField(verbose_name='pdf (kg)')
+    pdf_en = models.FileField(verbose_name='pdf (en)')
 
-    duration = models.PositiveBigIntegerField(
-        verbose_name="Продолжительность программы (в годах)"
-    )
 
-    Offline = models.BooleanField(default=False, verbose_name="очное")
-
-    emoji = models.CharField(max_length=5, verbose_name="эмодзи", blank=True)
-
-    mainDiscipline_ru = models.JSONField(
-        max_length=200,
-        verbose_name="Основные дисциплины (русский)",
-        default=list,
-        null=True,
-        blank=True,
-    )
-    mainDiscipline_en = models.JSONField(
-        max_length=200,
-        verbose_name="Основные дисциплины (английский)",
-        default=list,
-        null=True,
-        blank=True,
-    )
-    mainDiscipline_kg = models.JSONField(
-        max_length=200,
-        verbose_name="Основные дисциплины (киргизский)",
-        default=list,
-        null=True,
-        blank=True,
-    )
-
-    CareerPerspectives_ru = models.JSONField(
-        max_length=200,
-        verbose_name="Перспективы карьеры (русский)",
-        default=list,
-        null=True,
-        blank=True,
-    )
-    CareerPerspectives_en = models.JSONField(
-        max_length=200,
-        verbose_name="Перспективы карьеры (английский)",
-        default=list,
-        null=True,
-        blank=True,
-    )
-    CareerPerspectives_kg = models.JSONField(
-        max_length=200,
-        verbose_name="Перспективы карьеры (киргизский)",
-        default=list,
-        null=True,
-        blank=True,
-    )
-
-    class Meta:
-        verbose_name = "Бакалаврская программа"
-        verbose_name_plural = "Бакалаврские программы"
+    def get_ruling(self, lang='ru'):
+        return getattr(self, f'ruling_{lang}')
+    
+    def get_pdf(self, lang='ru'):
+        return getattr(self, f'pdf_{lang}')
 
     def __str__(self):
-        return self.name_ru
+        return 'бакалавр'
 
-    def get_name(self, language="ru"):
-        value = getattr(self, f"name_{language}", None)
-        return value if value else self.name_ru
+    class Meta:
+        verbose_name= 'бакалавр'
+        verbose_name_plural= 'бакалавры'
 
-    def get_description(self, language="ru"):
-        value = getattr(self, f"description_{language}", None)
-        return value if value else self.description_ru
 
-    def get_mainDiscipline(self, language="ru"):
-        value = getattr(self, f"mainDiscipline_{language}", None)
-        return value if value else self.mainDiscipline_ru
+class BachelorFaculties(models.Model):
+    name_ru = models.CharField(max_length=255, verbose_name='название факультета на русском')
+    name_en = models.CharField(max_length=255, verbose_name='название факультета на английский')
+    name_kg = models.CharField(max_length=255, verbose_name='название факультета на кыргызский')
 
-    def get_CareerPerspectives(self, language="ru"):
-        return getattr(
-            self, f"CareerPerspectives_{language}", self.CareerPerspectives_ru
-        )
+    sports_ru = models.CharField(max_length=500, verbose_name='виды спортов на русском')
+    sports_kg = models.CharField(max_length=500, verbose_name='виды спортов на кыргызском')
+    sports_en = models.CharField(max_length=500, verbose_name='виды спортов на английском')
+
+    bachelor = models.ForeignKey(BachelorProgram,  on_delete=models.CASCADE, related_name='faculties')
+
+    def get_name(self, lang='ru'):
+        return getattr(self, f'name_{lang}')
+    
+    def get_sports(self, lang='ru'):
+        return getattr(self, f'sports_{lang}')
+    
+
+
+class Doctorate(models.Model):
+    """
+    model for магистратура
+    """
+    text_ru = RichTextUploadingField(verbose_name='инфо на русском')
+    text_kg = RichTextUploadingField(verbose_name='инфо на кыргызский')
+    text_en = RichTextUploadingField(verbose_name='инфо на английский')
+
+    file_name_ru = models.CharField(max_length=233, verbose_name='название pdf файла на русском ')
+    file_name_en = models.CharField(max_length=233, verbose_name='название pdf файла на английском ')
+    file_name_kg = models.CharField(max_length=233, verbose_name='название pdf файла на русском ')
+
+    pdf_ru = models.FileField(verbose_name='pdf (ru)')
+    pdf_kg = models.FileField(verbose_name='pdf (kg)')
+    pdf_en = models.FileField(verbose_name='pdf (en)')
+
+
+    class Meta:
+        verbose_name= 'магистратура'
+        verbose_name_plural= 'магистратура'
+
+
+    def get_text(self, lang):
+        return getattr(self, f'text_{lang}', self.text_ru)
+
+    def get_file_name(self, lang):
+        return getattr(self, f'file_name_{lang}', self.file_name_ru)
+   
+    def get_pdf(self, lang):
+        return getattr(self, f'pdf_{lang}', self.pdf_ru)

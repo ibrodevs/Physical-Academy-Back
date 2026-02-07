@@ -1,23 +1,34 @@
 from django.contrib import admin
 from .models import (
-    MasterTabCategory,
-    MasterDepartmentInfo,
-    MasterManagement,
-    PhdManagement,
-    PhdTabCategory,
-    PhdDepartmentInfo,
+    Master,
+    Phd,
+    PhdStuff,
+    MasterStuff,
     CollegeDepartmentInfo,
     CollegeTabCategory,
     CollegeManagement,
 )
 
 # Register existing models
-admin.site.register(MasterTabCategory)
-admin.site.register(MasterDepartmentInfo)
-admin.site.register(MasterManagement)
-admin.site.register(PhdTabCategory)
-admin.site.register(PhdDepartmentInfo)
-admin.site.register(PhdManagement)
+
+class MasterStuffInline(admin.TabularInline):
+    model = MasterStuff
+
+@admin.register(Master)
+class MasterAdmin(admin.ModelAdmin):
+    inlines = [MasterStuffInline]
+
+
+class PhdStuffInline(admin.TabularInline):
+    model = PhdStuff
+
+@admin.register(Phd)
+class PhdAdmin(admin.ModelAdmin):
+    inlines = [PhdStuffInline]
+
+
+
+
 admin.site.register(CollegeTabCategory)
 admin.site.register(CollegeDepartmentInfo)
 admin.site.register(CollegeManagement)

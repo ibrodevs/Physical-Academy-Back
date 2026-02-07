@@ -18,14 +18,11 @@ from .models import (
     AspirantMainDate,
     AspirantPrograms,
     AspirantRequirements,
-    MasterDocuments,
-    MasterMainDate,
-    MasterPrograms,
-    MasterRequirements,
-    DoctorAdmissionSteps,
-    DoctorStatistics,
+    Master,
+    Doctorate,
     DoctorPrograms,
     BachelorProgram,
+    BachelorFaculties
 )
 
 
@@ -304,98 +301,7 @@ class AspirantDocumentsSerializer(serializers.ModelSerializer):
         return obj.get_document_name(language)
 
 
-class MasterDocumentsSerializer(serializers.ModelSerializer):
-    """Сериализатор для документов магистратуры"""
-
-    document_name = serializers.SerializerMethodField()
-
-    class Meta:
-        model = MasterDocuments
-        fields = ["id", "document_name", "order", "file"]
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_document_name(self, obj) -> str:
-        """Получить название документа на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_document_name(language)
-
-
-class MasterRequirementsSerializer(serializers.ModelSerializer):
-    """Сериализатор для требований магистратуры"""
-
-    description = serializers.SerializerMethodField()
-    title = serializers.SerializerMethodField()
-
-    class Meta:
-        model = MasterRequirements
-        fields = ["id", "description", "order", "title"]
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_description(self, obj) -> str:
-        """Получить описание на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_description(language)
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_title(self, obj) -> str:
-        """Получить название на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_title(language)
-
-
-class MasterMainDateSerializer(serializers.ModelSerializer):
-    """Сериализатор для основных дат магистратуры"""
-
-    event_name = serializers.SerializerMethodField()
-    date = serializers.SerializerMethodField()
-
-    class Meta:
-        model = MasterMainDate
-        fields = ["id", "event_name", "date", "order"]
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_event_name(self, obj) -> str:
-        """Получить название события на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_event_name(language)
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_date(self, obj) -> str:
-        """Получить дату на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_date(language)
-
-
-class MasterProgramsSerializer(serializers.ModelSerializer):
-    """Сериализатор для программ магистратуры"""
-
-    program_name = serializers.SerializerMethodField()
-    description = serializers.SerializerMethodField()
-    features = serializers.SerializerMethodField()
-
-    class Meta:
-        model = MasterPrograms
-        fields = ["id", "program_name", "description", "order", "features"]
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_program_name(self, obj) -> str:
-        """Получить название программы на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_program_name(language)
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_description(self, obj) -> str:
-        """Получить описание программы на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_description(language)
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_features(self, obj) -> str:
-        """Получить особенности программы на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_features(language)
-
-
+  
 class DoctorAdmissionStepsSerializer(serializers.Serializer):
     """Сериализатор для шагов приема в докторантуру"""
 
@@ -712,48 +618,95 @@ class CollegeStatisticsSerializer(serializers.ModelSerializer):
         language = self.context.get("language", "ru")
         return obj.get_description(language)
 
+class BachelorFacultiesSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    sports = serializers.SerializerMethodField()
+
+    class Meta:
+        model = BachelorFaculties
+        fields = ['id','name', 'sports']
+
+    def get_name(self, obj):
+        return obj.get_name(lang=self.context.get('language', 'ru'))
+    
+    def get_sports(self, obj):
+        return obj.get_sports(lang=self.context.get('language', 'ru'))
+
 
 class BachelorProgramsSerializer(serializers.ModelSerializer):
-    """Сериализатор для программ бакалавриата"""
-
-    name = serializers.SerializerMethodField()
-    description = serializers.SerializerMethodField()
-    mainDiscipline = serializers.SerializerMethodField()
-    CareerPerspectives = serializers.SerializerMethodField()
-
+    faculties = serializers.SerializerMethodField()
+    ruling = serializers.SerializerMethodField()
+    pdf = serializers.SerializerMethodField()
+   
     class Meta:
         model = BachelorProgram
         fields = [
-            "id",
-            "name",
-            "description",
-            "duration",
-            "Offline",
-            "emoji",
-            "mainDiscipline",
-            "CareerPerspectives",
+            'faculties', 'pdf', 'ruling'
         ]
 
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_name(self, obj) -> str:
-        """Получить название программы на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_name(language)
+    def get_faculties(self, obj):
+        faculties = obj.faculties.all()
+        return BachelorFacultiesSerializer(faculties, many=True, context=self.context).data
 
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_description(self, obj) -> str:
-        """Получить описание программы на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_description(language)
+    def get_pdf(self, obj):
+        pdf_file = obj.get_pdf(lang=self.context.get('language', 'ru'))
+        if pdf_file and hasattr(pdf_file, 'url'):
+            return pdf_file.url
+        return str(pdf_file) if pdf_file else None
+    
+    def get_ruling(self, obj):
+        ruling = obj.get_ruling(lang=self.context.get('language', 'ru'))
+        if ruling:
+            return str(ruling)
+        return None
+    
+class MasterSerializer(serializers.ModelSerializer):
+    file_name = serializers.SerializerMethodField()
+    pdf = serializers.SerializerMethodField()
+    text = serializers.SerializerMethodField()
 
-    @extend_schema_field(OpenApiTypes.OBJECT)
-    def get_mainDiscipline(self, obj):
-        """Получить основную дисциплину программы на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_mainDiscipline(language)
+    class Meta:
+        model = Master
+        fields = [
+            'file_name', 'pdf', 'text'
+        ]
 
-    @extend_schema_field(OpenApiTypes.OBJECT)
-    def get_CareerPerspectives(self, obj):
-        """Получить карьерные перспективы программы на нужном языке"""
-        language = self.context.get("language", "ru")
-        return obj.get_CareerPerspectives(language)
+
+    def get_file_name(self, obj):
+        return obj.get_file_name(lang=self.context.get('language', 'ru'))
+    
+    def get_text(self, obj):
+        return obj.get_text(lang=self.context.get('language', 'ru'))
+
+    def get_pdf(self, obj):
+        pdf = obj.get_pdf(lang=self.context.get('language', 'ru'))
+        if pdf and hasattr(pdf, 'url'):
+            return pdf.url
+        return str(pdf) if pdf else None
+    
+
+    
+class DoctorateSerializer(serializers.ModelSerializer):
+    file_name = serializers.SerializerMethodField()
+    pdf = serializers.SerializerMethodField()
+    text = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Doctorate
+        fields = [
+            'file_name', 'pdf', 'text'
+        ]
+
+
+    def get_file_name(self, obj):
+        return obj.get_file_name(lang=self.context.get('language', 'ru'))
+    
+    def get_text(self, obj):
+        return obj.get_text(lang=self.context.get('language', 'ru'))
+
+    def get_pdf(self, obj):
+        pdf = obj.get_pdf(lang=self.context.get('language', 'ru'))
+        if pdf and hasattr(pdf, 'url'):
+            return pdf.url
+        return str(pdf) if pdf else None
+    

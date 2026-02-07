@@ -1,5 +1,64 @@
 from django.db import models
+from ckeditor_uploader.fields import RichTextUploadingField
 
+
+# Create your models here.
+class StudentSupport(models.Model):
+    text_ru = RichTextUploadingField(verbose_name='текст на русском')
+    text_en = RichTextUploadingField(verbose_name='текст на английском')
+    text_kg = RichTextUploadingField(verbose_name='текст на кыргызском')
+
+    class Meta:
+        verbose_name = 'поддержка студентов'
+
+    def get_text(self, lang):
+        return getattr(self,f'text_{lang}')
+    
+
+class StudentsCouncil(models.Model):    
+    text_ru = RichTextUploadingField(verbose_name='текст на русском')
+    text_en = RichTextUploadingField(verbose_name='текст на английском')
+    text_kg = RichTextUploadingField(verbose_name='текст на кыргызском')
+
+    class Meta:
+        verbose_name = 'студентеческий совет'
+
+    def get_text(self, lang):
+        return getattr(self,f'text_{lang}')
+    
+
+class StudentExchange(models.Model):
+    photo = models.ImageField(verbose_name='фото')
+
+    name_ru = models.CharField(max_length=255, verbose_name='название программы на русском')
+    name_en = models.CharField(max_length=255, verbose_name='название программы на английском')
+    name_kg = models.CharField(max_length=255, verbose_name='название программы на кыргызском')
+
+    desc_ru = models.CharField(max_length=1005, verbose_name='описание программы на русском')
+    desc_en = models.CharField(max_length=1005, verbose_name='описание программы на английском')
+    desc_kg = models.CharField(max_length=1005, verbose_name='описание программы на кыргызском')
+
+    class Meta:
+        verbose_name = 'студентеческий обмен'
+
+    def get_name(self, lang):
+        return getattr(self,f'name_{lang}')
+    
+    def get_desc(self, lang):
+        return getattr(self,f'desc_{lang}')
+
+
+class StudentInstractions(models.Model):
+    pdf_ru = models.FileField(verbose_name='pdf(ru)')
+    pdf_en = models.FileField(verbose_name='pdf(en)')
+    pdf_kg = models.FileField(verbose_name='pdf(kg)')
+    
+
+    class Meta:
+        verbose_name= 'инструкции'
+
+    def get_pdf(self, lang):
+        return getattr(self, f'pdf_{lang}', self.pdf_ru)
 
 class ScholarshipProgram(models.Model):
     """Стипендиальная программа для студентов"""
@@ -85,93 +144,6 @@ class ScholarshipRequiredDocument(models.Model):
 
     def __str__(self):
         return f"{self.scholarship.name_ru} - {self.name_ru}"
-
-    def get_field(self, field_name, language="ru"):
-        """Получить значение поля на указанном языке"""
-        field_with_lang = f"{field_name}_{language}"
-        return getattr(self, field_with_lang, getattr(self, f"{field_name}_ru"))
-
-
-class VisaSupportService(models.Model):
-    """Сервис поддержки по визовым вопросам"""
-
-    title_ru = models.CharField(max_length=200, verbose_name="Заголовок (RU)")
-    title_en = models.CharField(max_length=200, verbose_name="Заголовок (EN)")
-    title_kg = models.CharField(max_length=200, verbose_name="Заголовок (KG)")
-
-    description_ru = models.TextField(verbose_name="Описание (RU)")
-    description_en = models.TextField(verbose_name="Описание (EN)")
-    description_kg = models.TextField(verbose_name="Описание (KG)")
-
-    is_featured = models.BooleanField(default=False, verbose_name="Выделенный сервис")
-    icon = models.CharField(
-        max_length=100, blank=True, null=True, verbose_name="Иконка (класс)"
-    )
-
-    order = models.PositiveSmallIntegerField(default=1, verbose_name="Порядок")
-    is_active = models.BooleanField(default=True, verbose_name="Активен")
-
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
-
-    class Meta:
-        verbose_name = "Visa Support Service"
-        verbose_name_plural = "Visa Support Services"
-        ordering = ["order"]
-
-    def __str__(self):
-        return self.title_ru
-
-    def get_field(self, field_name, language="ru"):
-        """Получить значение поля на указанном языке"""
-        field_with_lang = f"{field_name}_{language}"
-        return getattr(self, field_with_lang, getattr(self, f"{field_name}_ru"))
-
-
-class VisaSupportContact(models.Model):
-    """Контактное лицо по визовым вопросам"""
-
-    full_name_ru = models.CharField(max_length=200, verbose_name="ФИО (RU)")
-    full_name_en = models.CharField(max_length=200, verbose_name="ФИО (EN)")
-    full_name_kg = models.CharField(max_length=200, verbose_name="ФИО (KG)")
-
-    position_ru = models.CharField(max_length=200, verbose_name="Должность (RU)")
-    position_en = models.CharField(max_length=200, verbose_name="Должность (EN)")
-    position_kg = models.CharField(max_length=200, verbose_name="Должность (KG)")
-
-    email = models.EmailField(verbose_name="Email")
-    phone = models.CharField(
-        max_length=50, blank=True, null=True, verbose_name="Телефон"
-    )
-
-    photo = models.ImageField(
-        upload_to="visa_support/", blank=True, null=True, verbose_name="Фото"
-    )
-
-    office_location_ru = models.CharField(
-        max_length=200, verbose_name="Расположение офиса (RU)"
-    )
-    office_location_en = models.CharField(
-        max_length=200, verbose_name="Расположение офиса (EN)"
-    )
-    office_location_kg = models.CharField(
-        max_length=200, verbose_name="Расположение офиса (KG)"
-    )
-
-    office_hours_ru = models.CharField(max_length=200, verbose_name="Часы приема (RU)")
-    office_hours_en = models.CharField(max_length=200, verbose_name="Часы приема (EN)")
-    office_hours_kg = models.CharField(max_length=200, verbose_name="Часы приема (KG)")
-
-    order = models.PositiveSmallIntegerField(default=1, verbose_name="Порядок")
-    is_active = models.BooleanField(default=True, verbose_name="Активен")
-
-    class Meta:
-        verbose_name = "Visa Support Contact"
-        verbose_name_plural = "Visa Support Contacts"
-        ordering = ["order"]
-
-    def __str__(self):
-        return self.full_name_ru
 
     def get_field(self, field_name, language="ru"):
         """Получить значение поля на указанном языке"""

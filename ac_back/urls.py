@@ -18,7 +18,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("ckeditor/", include("ckeditor_uploader.urls")),
     # API endpoints
-    path("api/student-clubs/", include("student_clubs.urls")),
+    path("api/students/", include("students.urls")),
     path("api/leadership-structure/", include("leadership_structure.urls")),
     path("api/admission/", include("admission.urls")),
     path("api/science/", include("science.urls")),
@@ -42,7 +42,8 @@ urlpatterns = [
     path("api/general-departments/", include("general_departments.urls")),
     # Education API (магистратура, докторантура, колледж)
     path("api/education/", include("education.urls")),
-    # Schema (JSON/YAML)'
+
+    
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     # Swagger / Redoc UI
     path(

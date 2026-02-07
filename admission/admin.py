@@ -1,10 +1,10 @@
 from django.contrib import admin
 from .models import (
     BachelorProgram,
+    BachelorFaculties,
     CollegeAdmissionSteps,
     CollegePrograms,
     CollegeStatistics,
-    DoctorAdmissionSteps,
     QuotaType,
     QuotaRequirement,
     QuotaBenefit,
@@ -15,19 +15,18 @@ from .models import (
     AspirantMainDate,
     AspirantDocuments,
     AspirantPrograms,
-    MasterDocuments,
-    MasterRequirements,
-    MasterPrograms,
-    MasterMainDate,
-    DoctorStatistics,
-    DoctorPrograms,
-    DoctorAdmissionSteps,
+    Master,
+    Doctorate,
     CollegeSoonEvents,
     CollegeAdmissionRequirements,
 )
 
-admin.site.register(BachelorProgram)
+class BachelorFacultiesInline(admin.TabularInline):
+    model = BachelorFaculties
 
+@admin.register(BachelorProgram)
+class BachelorProgramAdmin(admin.ModelAdmin):
+    inlines = [BachelorFacultiesInline]
 
 class QuotaRequirementInline(admin.TabularInline):
     """Inline админка для требований к квотам"""
@@ -219,13 +218,8 @@ admin.site.register(AspirantRequirements)
 admin.site.register(AspirantMainDate)
 admin.site.register(AspirantDocuments)
 admin.site.register(AspirantPrograms)
-admin.site.register(MasterPrograms)
-admin.site.register(MasterDocuments)
-admin.site.register(MasterMainDate)
-admin.site.register(MasterRequirements)
-admin.site.register(DoctorStatistics)
-admin.site.register(DoctorPrograms)
-admin.site.register(DoctorAdmissionSteps)
+admin.site.register(Master)
+admin.site.register(Doctorate)
 admin.site.register(CollegeSoonEvents)
 admin.site.register(CollegeAdmissionSteps)
 admin.site.register(CollegeAdmissionRequirements)
