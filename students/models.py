@@ -34,9 +34,10 @@ class StudentExchange(models.Model):
     name_en = models.CharField(max_length=255, verbose_name='название программы на английском')
     name_kg = models.CharField(max_length=255, verbose_name='название программы на кыргызском')
 
-    desc_ru = models.CharField(max_length=1005, verbose_name='описание программы на русском')
-    desc_en = models.CharField(max_length=1005, verbose_name='описание программы на английском')
-    desc_kg = models.CharField(max_length=1005, verbose_name='описание программы на кыргызском')
+    desc_ru = RichTextUploadingField(max_length=1005, verbose_name='описание программы на русском')
+    desc_en = RichTextUploadingField(max_length=1005, verbose_name='описание программы на английском')
+    desc_kg = RichTextUploadingField(max_length=1005, verbose_name='описание программы на кыргызском')
+
 
     class Meta:
         verbose_name = 'студентеческий обмен'
@@ -52,13 +53,19 @@ class StudentInstractions(models.Model):
     pdf_ru = models.FileField(verbose_name='pdf(ru)')
     pdf_en = models.FileField(verbose_name='pdf(en)')
     pdf_kg = models.FileField(verbose_name='pdf(kg)')
-    
+
+    file_name_ru = models.CharField(max_length=233, verbose_name='название pdf файла на русском ')
+    file_name_en = models.CharField(max_length=233, verbose_name='название pdf файла на английском ')
+    file_name_kg = models.CharField(max_length=233, verbose_name='название pdf файла на русском ')
 
     class Meta:
         verbose_name= 'инструкции'
 
     def get_pdf(self, lang):
         return getattr(self, f'pdf_{lang}', self.pdf_ru)
+
+    def get_file_name(self, lang):
+        return getattr(self, f'file_name_{lang}', self.file_name_ru)
 
 class ScholarshipProgram(models.Model):
     """Стипендиальная программа для студентов"""

@@ -58,6 +58,7 @@ class StudentExchangeSerializer(serializers.ModelSerializer):
     def get_desc(self, obj):
         return obj.get_desc(lang=self.context.get('language', 'ru'))
 
+
     @extend_schema_field(OpenApiTypes.STR)
     def get_photo(self, obj):
         if obj.photo:
@@ -67,10 +68,11 @@ class StudentExchangeSerializer(serializers.ModelSerializer):
 
 class StudentInstractionsSerializer(serializers.ModelSerializer):
     pdf = serializers.SerializerMethodField()
+    file_name = serializers.SerializerMethodField()
 
     class Meta:
         model = StudentInstractions
-        fields = ['id', 'pdf']
+        fields = ['id', 'pdf', 'file_name']
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_pdf(self, obj):
@@ -78,6 +80,10 @@ class StudentInstractionsSerializer(serializers.ModelSerializer):
         if pdf_file and hasattr(pdf_file, 'url'):
             return pdf_file.url
         return str(pdf_file) if pdf_file else None
+
+    
+    def get_file_name(self, obj):
+        return obj.get_file_name(lang=self.context.get('language', 'ru'))    
 
 
 class ScholarshipRequiredDocumentSerializer(serializers.ModelSerializer):

@@ -688,9 +688,7 @@ class BachelorFaculties(models.Model):
 
 
 class Doctorate(models.Model):
-    """
-    model for доктурантура
-    """
+    """model for доктурантура"""
     text_ru = RichTextUploadingField(verbose_name='инфо на русском')
     text_kg = RichTextUploadingField(verbose_name='инфо на кыргызский')
     text_en = RichTextUploadingField(verbose_name='инфо на английский')
