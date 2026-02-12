@@ -52,6 +52,8 @@ urlpatterns = [
         "swagger/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"
     ),
     path("redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+    path("api/graduates/", include("graduates.urls")),  # URL для приложения выпускников
+    path("api/sport-achievements/", include("sport_achievements.urls")),  # URL
 ]
 
 # Serve static and media files in development

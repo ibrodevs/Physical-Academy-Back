@@ -95,61 +95,61 @@ class SportSectionAdmin(admin.ModelAdmin):
     get_coach_name_ru.short_description = "ФИО тренера (RU)"
 
 
-@admin.register(Achievement)
-class AchievementAdmin(admin.ModelAdmin):
-    list_display = (
-        "athlete_name_ru",
-        "sport_ru",
-        "result_ru",
-        "date",
-        "category",
-        "is_active",
-        "order",
-    )
-    list_filter = ("is_active", "category", "date")
-    list_editable = ("is_active", "order")
-    search_fields = (
-        "athlete_name",
-        "competition_ru",
-        "competition_en",
-        "competition_kg",
-    )
-    date_hierarchy = "date"
-
-    fieldsets = (
-        (
-            "Основная информация",
-            {
-                "fields": (
-                    "athlete_name_ru",
-                    "athlete_name_kg",
-                    "athlete_name_en",
-                    "sport_ru",
-                    "sport_kg",
-                    "sport_en",
-                    "competition_ru",
-                    "competition_kg",
-                    "competition_en",
-                    "result_ru",
-                    "result_kg",
-                    "result_en",
-                    "date",
-                    "image",
-                    "category",
-                    "is_active",
-                    "order",
-                )
-            },
-        ),
-        (
-            "Описания (многоязычность)",
-            {"fields": ("description_ru", "description_kg", "description_en")},
-        ),
-        ("Дополнительно", {"fields": ("details",), "classes": ("collapse",)}),
-    )
-
-
-@admin.register(Infrastructure)
+# @admin.register(Achievement)
+# class AchievementAdmin(admin.ModelAdmin):
+#     list_display = (
+#         "athlete_name_ru",
+#         "sport_ru",
+#         "result_ru",
+#         "date",
+#         "category",
+#         "is_active",
+#         "order",
+#     )
+#     list_filter = ("is_active", "category", "date")
+#     list_editable = ("is_active", "order")
+#     search_fields = (
+#         "athlete_name",
+#         "competition_ru",
+#         "competition_en",
+#         "competition_kg",
+#     )
+#     date_hierarchy = "date"
+# 
+#     fieldsets = (
+#         (
+#             "Основная информация",
+#             {
+#                 "fields": (
+#                     "athlete_name_ru",
+#                     "athlete_name_kg",
+#                     "athlete_name_en",
+#                     "sport_ru",
+#                     "sport_kg",
+#                     "sport_en",
+#                     "competition_ru",
+#                     "competition_kg",
+#                     "competition_en",
+#                     "result_ru",
+#                     "result_kg",
+#                     "result_en",
+#                     "date",
+#                     "image",
+#                     "category",
+#                     "is_active",
+#                     "order",
+#                 )
+#             },
+#         ),
+#         (
+#             "Описания (многоязычность)",
+#             {"fields": ("description_ru", "description_kg", "description_en")},
+#         ),
+#         ("Дополнительно", {"fields": ("details",), "classes": ("collapse",)}),
+#     )
+# 
+# 
+# @admin.register(Infrastructure)
 class InfrastructureAdmin(admin.ModelAdmin):
     list_display = ("name_ru", "badge", "is_active")
     list_filter = ("is_active",)

@@ -593,7 +593,7 @@ class InfrastructureObject(models.Model):
     category = models.ForeignKey(
         InfrastructureCategory,
         on_delete=models.CASCADE,
-        related_name="objects",
+        related_name="infra_objects",
         verbose_name=_("Категория"),
     )
     image = models.ImageField(

@@ -83,6 +83,8 @@ INSTALLED_APPS = [
     "education",  # Образование (магистратура, докторантура, колледж)
     "ckeditor_uploader",
     "ckeditor",
+    "graduates",  # Приложение для выпускников
+    "sport_achievements",  # Приложение для спортивных достижений
 ]
 
 MIDDLEWARE = [
@@ -203,6 +205,7 @@ STORAGES = {
 
 # Media files configuration
 MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 cloudinary.config(
