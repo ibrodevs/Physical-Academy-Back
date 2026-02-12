@@ -9,7 +9,7 @@ class GraduateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Graduate
-        fields = ["id", "full_name", "description", "photo", "is_active"]
+        fields = ["id", "full_name", "description", "is_active"]
 
     def _get_lang(self):
         """Получаем язык из query-параметра. По умолчанию — ru."""
