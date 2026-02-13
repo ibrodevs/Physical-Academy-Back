@@ -84,7 +84,8 @@ INSTALLED_APPS = [
     "ckeditor_uploader",
     "ckeditor",
     "graduates",  # Приложение для выпускников
-    "sport_achievements",  # Приложение для спортивных достижений
+    "sport_achievements", # Приложение для спортивных достижений
+    "bulletin", 
 ]
 
 MIDDLEWARE = [
