@@ -50,7 +50,8 @@ urlpatterns = [
     # Swagger / Redoc UI
     path(
         "swagger/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"
-    ),
+    ), 
+    
     path("redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     path("api/graduates/", include("graduates.urls")),  # URL для приложения выпускников
     path("api/sport-achievements/", include("sport_achievements.urls")),
