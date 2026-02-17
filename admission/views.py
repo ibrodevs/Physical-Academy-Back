@@ -90,12 +90,7 @@ class AdditionalSupportViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet для дополнительной поддержки"""
 
     serializer_class = AdditionalSupportSerializer
-
-    def get_queryset(self):
-        # Check for swagger schema generation
-        if getattr(self, "swagger_fake_view", False):
-            return AdditionalSupport.objects.none()
-        return AdditionalSupport.objects.filter(is_active=True).order_by("order")
+    queryset = AdditionalSupport.objects.all()
 
     def get_serializer_context(self):
         context = super().get_serializer_context()

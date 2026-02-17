@@ -55,8 +55,8 @@ urlpatterns = [
     path("redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     path("api/graduates/", include("graduates.urls")),  # URL для приложения выпускников
     path("api/sport-achievements/", include("sport_achievements.urls")),
-    path("api/bulletin/", include("bulletin.urls")),
-    path("api/administrative-structure/", include("administrative_structure.urls")),  # URL для приложения бюллетеня
+    path("api/administrative-structure/", include("administrative_structure.urls")), 
+    path("api/journal/", include("journal.urls")),  # URL для приложения журнала
 ]
 
 # Serve static and media files in development
