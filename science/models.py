@@ -1,7 +1,9 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from ckeditor_uploader.fields import RichTextUploadingField
-
+import os
+from django.core.exceptions import ValidationError
+from .validators import validate_pdf
 
 # Scientific Direction model
 class ScientificDirection(models.Model):
@@ -1508,3 +1510,63 @@ class StudentScientificSocietyContact(models.Model):
 
     def get_label(self, language="ru"):
         return getattr(self, f"label_{language}", self.label_ru)
+
+
+
+    def validate_pdf(file):
+        ext = os.path.splitext(file.name)[1]
+        if ext.lower() != ".pdf":
+            raise ValidationError("Разрешены только PDF файлы.")
+
+        if file.size > 20 * 1024 * 1024:
+            raise ValidationError("Размер файла не должен превышать 20MB.")
+
+
+class ScientificPublication(models.Model):
+    """Model for scientific publications with 3-language PDF support"""
+
+    title_ru = models.CharField(max_length=255)
+    title_en = models.CharField(max_length=255)
+    title_kg = models.CharField(max_length=255)
+
+    authors_ru = models.CharField(max_length=255)
+    authors_en = models.CharField(max_length=255)
+    authors_kg = models.CharField(max_length=255)
+
+    # PDF files
+    file_ru = models.FileField(
+        upload_to="scientific_publications/",
+        validators=[validate_pdf],
+        blank=True,
+        null=True,
+        verbose_name="PDF (RU)",
+    )
+
+    file_en = models.FileField(
+        upload_to="scientific_publications/",
+        validators=[validate_pdf],
+        blank=True,
+        null=True,
+        verbose_name="PDF (EN)",
+    )
+
+    file_kg = models.FileField(
+        upload_to="scientific_publications/",
+        validators=[validate_pdf],
+        blank=True,
+        null=True,
+        verbose_name="PDF (KG)",
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Scientific Publication"
+        verbose_name_plural = "Scientific Publications"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.title_ru
+
+

@@ -1,5 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from .views_main import ScientificPublicationListView
 
 # Import Publication views from views_main
 from .views_main import (
@@ -112,4 +113,11 @@ urlpatterns = [
         StudentScientificSocietyPageView.as_view(),
         name="student-scientific-society-page",
     ),
+
+    path(
+        "scientific-publications/",
+        ScientificPublicationListView.as_view(),
+        name="scientific-publications",
+    ),
+
 ]
