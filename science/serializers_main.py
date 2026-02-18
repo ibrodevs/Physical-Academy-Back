@@ -10,6 +10,7 @@ from .models import (
 )
 
 
+
 from .serializers.nts_committee import (
     NTSCommitteeRoleSerializer,
     NTSResearchDirectionSerializer,
@@ -23,6 +24,9 @@ from .serializers.scopus import (
     ScopusPublicationAuthorSerializer,
     ScopusPublicationSerializer,
 )
+
+
+from .models import ScientificPublication
 
 # ==================== PUBLICATION SERIALIZERS ====================
 
@@ -187,3 +191,49 @@ class PublicationsPageSerializer(serializers.Serializer):
         return serializer.data
 
 
+
+
+# ==================== SCIENTIFIC PUBLICATION SERIALIZER ====================
+
+
+class ScientificPublicationSerializer(serializers.ModelSerializer):
+    """Сериализатор для раздела 'Научные публикации' (PDF по 3 языкам)"""
+
+    title = serializers.SerializerMethodField()
+    authors = serializers.SerializerMethodField()
+    file = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ScientificPublication
+        fields = [
+            "id",
+            "title",
+            "authors",
+            "file",
+        ]
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_title(self, obj):
+        language = self.context.get("language", "ru")
+        return getattr(obj, f"title_{language}", obj.title_ru)
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_authors(self, obj):
+        language = self.context.get("language", "ru")
+        return getattr(obj, f"authors_{language}", obj.authors_ru)
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_file(self, obj):
+        language = self.context.get("language", "ru")
+        file_field = getattr(obj, f"file_{language}", None)
+
+        if not file_field:
+            return None
+
+        try:
+            request = self.context.get("request")
+            if request:
+                return request.build_absolute_uri(file_field.url)
+            return file_field.url
+        except Exception:
+            return None

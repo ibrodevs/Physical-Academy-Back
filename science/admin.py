@@ -33,6 +33,7 @@ from .models import (
     StudentScientificSocietyJoinStep,
     StudentScientificSocietyLeader,
     StudentScientificSocietyContact,
+    ScientificPublication
 )
 
 class VestnikReleaseInline(admin.StackedInline):
@@ -80,3 +81,4 @@ admin.site.register(StudentScientificSocietyEvent)
 admin.site.register(StudentScientificSocietyJoinStep)
 admin.site.register(StudentScientificSocietyLeader)
 admin.site.register(StudentScientificSocietyContact)
+admin.site.register(ScientificPublication)

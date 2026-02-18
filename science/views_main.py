@@ -4,6 +4,8 @@ from rest_framework import viewsets, generics
 from rest_framework.response import Response
 from django.db.models import Q
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+from .models import ScientificPublication
+from .serializers_main import ScientificPublicationSerializer
 
 from .models import (
     Publication,
@@ -64,6 +66,8 @@ __all__ = [
     "WebOfScienceAdditionalMetricViewSet",
     "WebOfScienceSectionViewSet",
     "WebOfSciencePageView",
+    "ScientificPublicationListView",
+
 ]
 
 
@@ -197,6 +201,20 @@ class VestnikYearViewSet(generics.ListAPIView):
 
     queryset = VestnikYear.objects.all().prefetch_related("releases")
     serializer_class = VestnikYearSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["language"] = self.request.query_params.get("lang", "ru")
+        return context
+
+# ==================== SCIENTIFIC PUBLICATION VIEWS ====================
+
+
+class ScientificPublicationListView(generics.ListAPIView):
+    """Public API for Scientific Publications (PDF section)"""
+
+    queryset = ScientificPublication.objects.all().order_by("-created_at")
+    serializer_class = ScientificPublicationSerializer
 
     def get_serializer_context(self):
         context = super().get_serializer_context()

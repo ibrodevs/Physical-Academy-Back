@@ -14,6 +14,8 @@ from .models import (
     Commission,
 
 )
+from typing import Optional
+
 
 
 class CommissionSerializer(serializers.ModelSerializer):
@@ -24,7 +26,7 @@ class CommissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Commission
         fields = [
-           'id', "text",
+        'id', "text",
         ]
 
     def get_text(self, obj) -> str:
@@ -141,7 +143,6 @@ class BoardOfTrusteesSerializer(
     name = serializers.SerializerMethodField()
     position = serializers.SerializerMethodField()
     image_url = serializers.SerializerMethodField()
-  
 
     class Meta:
         model = BoardOfTrustees

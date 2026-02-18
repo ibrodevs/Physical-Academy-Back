@@ -1,3 +1,5 @@
+from typing import Optional
+
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
@@ -75,7 +77,7 @@ class MissionSerializer(serializers.ModelSerializer):
     @extend_schema_field(OpenApiTypes.STR)
     def get_pdf(self, obj) -> str | None:
         language = self.context.get("language", "ru")
-        pdf = getattr(obj, f"pdf_{language}", None)
+        pdf = getattr(obj, f"pdf_{language}",Optional[str])
         if not pdf:
             return None
         try:
