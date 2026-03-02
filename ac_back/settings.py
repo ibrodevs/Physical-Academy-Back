@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     "sport_achievements", # Приложение для спортивных достижений
     "bulletin",
     "administrative_structure",
+
 ]
 
 MIDDLEWARE = [

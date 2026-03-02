@@ -17,7 +17,6 @@ from .models import (
 from typing import Optional
 
 
-
 class CommissionSerializer(serializers.ModelSerializer):
     """Serializer for Commission"""
 
@@ -393,7 +392,8 @@ class DocumentSerializer(MultiLanguageSerializerMixin, serializers.ModelSerializ
         return obj.get_name(self.context.get("language", "ru"))
     
     @extend_schema_field(OpenApiTypes.STR)
-    def get_pdf(self, obj) -> str | None:
+    def get_pdf(self, obj) -> Optional[str]:
+        ...
         language = self.context.get("language", "ru")
         pdf = getattr(obj, f"pdf_{language}", None)
         if not pdf:

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
@@ -58,7 +60,7 @@ class VestnikReleaseSerializer(serializers.ModelSerializer):
         return obj.get_description(language)
 
     @extend_schema_field(OpenApiTypes.STR)
-    def get_pdf(self, obj) -> str | None:
+    def get_pdf(self, obj) -> Optional[str]:
         language = self.context.get("language", "ru")
         pdf = getattr(obj, f"pdf_{language}", None)
         if not pdf:
