@@ -80,11 +80,12 @@ class JournalArchiveView(generics.ListAPIView):
 class LatestIssueView(APIView):
     def get(self, request):
         lang = get_lang(request)
-        issue = LatestIssue.objects.filter(is_active=True).order_by("-year").first()
-        if not issue:
-            return Response(None)
+        issues = LatestIssue.objects.filter(is_active=True).order_by("-year")
+        if not issues.exists():
+            return Response([])
         serializer = LatestIssueSerializer(
-            issue,
+            issues,
+            many=True,  
             context={"language": lang, "request": request}
         )
         return Response(serializer.data)

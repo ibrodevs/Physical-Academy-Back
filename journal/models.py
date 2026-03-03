@@ -113,4 +113,5 @@ class LatestIssue(models.Model):
         return getattr(self, f"title_{lang}", "")
 
     def get_pdf(self, lang="ru"):
-        return getattr(self, f"pdf_{lang}", None)
+     field = getattr(self, f"pdf_{lang}", None)
+     return field if field else None
