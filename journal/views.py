@@ -1,23 +1,26 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import generics
-
+from rest_framework import generics, status
 from .models import (
     JournalSection,
-    EditorialOfficeMember,
-    EditorialBoardMember,
-    JournalArchive,
+    EditorialBoard,
     LatestIssue,
+    ArchiveYear,
+    ArchiveItem,
 )
 from .serializers import (
     JournalSectionSerializer,
-    EditorialOfficeMemberSerializer,
-    EditorialBoardMemberSerializer,
-    JournalArchiveSerializer,
+    EditorialBoardSerializer,
+    ArchiveYearSerializer,
     LatestIssueSerializer,
 )
 
 VALID_LANGS = {"ru", "en", "kg"}
+
+
+def get_lang(request):
+    lang = request.query_params.get("lang", "ru")
+    return lang if lang in VALID_LANGS else "ru"
 
 
 class JournalSectionView(generics.ListAPIView):
@@ -29,63 +32,66 @@ class JournalSectionView(generics.ListAPIView):
         context['language'] = self.request.query_params.get('lang', 'ru')
         return context
 
-def get_lang(request):
-    lang = request.query_params.get("lang", "ru")
-    return lang if lang in VALID_LANGS else "ru"
 
-
-class EditorialOfficeView(generics.ListAPIView):
-    serializer_class = EditorialOfficeMemberSerializer
-
-    def get_queryset(self):
-        return EditorialOfficeMember.objects.filter(is_active=True)
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["language"] = get_lang(self.request)
-        return context
-
-
-class EditorialBoardView(generics.ListAPIView):
-    serializer_class = EditorialBoardMemberSerializer
-
-    def get_queryset(self):
-        return EditorialBoardMember.objects.filter(is_active=True)
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["language"] = get_lang(self.request)
-        return context
-
-    # Переопределяем list, чтобы вернуть просто список строк
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+class EditorialBoardView(APIView):
+    def get(self, request):
         lang = get_lang(request)
-        names = [obj.get_full_name(lang) for obj in queryset]
-        return Response(names)
+
+        board = EditorialBoard.objects.filter(is_active=True).first()
+
+        if not board:
+            return Response(
+                {"error": "No active editorial board found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = EditorialBoardSerializer(
+            board,
+            context={"lang": lang, "request": request}
+        )
+        return Response(serializer.data)
 
 
-class JournalArchiveView(generics.ListAPIView):
-    serializer_class = JournalArchiveSerializer
 
-    def get_queryset(self):
-        return JournalArchive.objects.filter(is_active=True)
+class ArchiveListView(APIView):
+    """GET /api/journal/archive/?lang=ru — все годы с документами"""
+    def get(self, request):
+        lang = get_lang(request)
+        years = ArchiveYear.objects.filter(is_active=True)
+        serializer = ArchiveYearSerializer(
+            years, many=True,
+            context={"lang": lang, "request": request}
+        )
+        return Response(serializer.data)
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["language"] = get_lang(self.request)
-        return context
+
+class ArchiveByYearView(APIView):
+    """GET /api/journal/archive/{year}/?lang=ru — конкретный год"""
+    def get(self, request, year):
+        lang = get_lang(request)
+        try:
+            archive_year = ArchiveYear.objects.get(year=year, is_active=True)
+        except ArchiveYear.DoesNotExist:
+            return Response({"error": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ArchiveYearSerializer(
+            archive_year,
+            context={"lang": lang, "request": request}
+        )
+        return Response(serializer.data)
 
 
 class LatestIssueView(APIView):
     def get(self, request):
         lang = get_lang(request)
         issues = LatestIssue.objects.filter(is_active=True).order_by("-year")
+
         if not issues.exists():
             return Response([])
+
         serializer = LatestIssueSerializer(
             issues,
-            many=True,  
+            many=True,
             context={"language": lang, "request": request}
         )
         return Response(serializer.data)

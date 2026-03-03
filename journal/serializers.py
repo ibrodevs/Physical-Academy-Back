@@ -1,10 +1,10 @@
 from rest_framework import serializers
 from .models import (
     JournalSection,
-    EditorialOfficeMember,
-    EditorialBoardMember,
-    JournalArchive,
+    EditorialBoard,
     LatestIssue,
+    ArchiveYear,
+    ArchiveItem,
 )
 
 
@@ -20,82 +20,67 @@ class JournalSectionSerializer(serializers.ModelSerializer):
         return obj.get_content(lang)
 
 
-
-from rest_framework import serializers
-from .models import (
-    EditorialOfficeMember,
-    EditorialBoardMember,
-    JournalArchive,
-    LatestIssue,
-)
-
-
-class EditorialOfficeMemberSerializer(serializers.ModelSerializer):
-    full_name = serializers.SerializerMethodField()
-    position = serializers.SerializerMethodField()
-    photo = serializers.SerializerMethodField()
-
-    class Meta:
-        model = EditorialOfficeMember
-        fields = ("full_name", "position", "photo")
-
-    def get_lang(self):
-        return self.context.get("language", "ru")
-
-    def get_full_name(self, obj):
-        return obj.get_full_name(self.get_lang())
-
-    def get_position(self, obj):
-        return obj.get_position(self.get_lang())
-
-    def get_photo(self, obj):
-        request = self.context.get("request")
-        if obj.photo:
-            # Cloudinary возвращает URL напрямую
-            return obj.photo.url
-        return None
-
-
-class EditorialBoardMemberSerializer(serializers.ModelSerializer):
-    full_name = serializers.SerializerMethodField()
-
-    class Meta:
-        model = EditorialBoardMember
-        fields = ("full_name",)
-
-    def get_full_name(self, obj):
-        lang = self.context.get("language", "ru")
-        return obj.get_full_name(lang)
-
-
-class JournalArchiveSerializer(serializers.ModelSerializer):
+class EditorialBoardSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()
-    pdf_file = serializers.SerializerMethodField()
+    pdf   = serializers.SerializerMethodField()
 
     class Meta:
-        model = JournalArchive
-        fields = ("year", "title", "pdf_file")
-
-    def get_lang(self):
-        return self.context.get("language", "ru")
+        model  = EditorialBoard
+        fields = ["title", "pdf", "updated_at"]
 
     def get_title(self, obj):
-        return obj.get_title(self.get_lang())
+        lang = self.context.get("lang", "ru")
+        return getattr(obj, f"title_{lang}", obj.title_ru)
 
-    def get_pdf_file(self, obj):
+    def get_pdf(self, obj):
         request = self.context.get("request")
-        pdf = obj.get_pdf(self.get_lang())
-        if pdf and hasattr(pdf, 'url'):
-            return request.build_absolute_uri(pdf.url) if request else pdf.url
+        lang    = self.context.get("lang", "ru")
+        file    = getattr(obj, f"file_{lang}", None)
+        if file and request:
+            return request.build_absolute_uri(file.url)
         return None
+
+
+
+class ArchiveItemSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
+    pdf   = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = ArchiveItem
+        fields = ["id", "title", "pdf"]
+
+    def get_title(self, obj):
+        lang = self.context.get("lang", "ru")
+        return getattr(obj, f"title_{lang}", obj.title_ru)
+
+    def get_pdf(self, obj):
+        request = self.context.get("request")
+        lang    = self.context.get("lang", "ru")
+        file    = getattr(obj, f"file_{lang}", None)
+        if file and file.name and request:
+            return request.build_absolute_uri(file.url)
+        return None
+
+
+class ArchiveYearSerializer(serializers.ModelSerializer):
+    items = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = ArchiveYear
+        fields = ["year", "items"]
+
+    def get_items(self, obj):
+        docs = obj.items.filter(is_active=True).order_by("sort_order", "id")
+        return ArchiveItemSerializer(docs, many=True, context=self.context).data
 
 
 class LatestIssueSerializer(serializers.ModelSerializer):
-    title = serializers.SerializerMethodField()
+    title    = serializers.SerializerMethodField()
     pdf_file = serializers.SerializerMethodField()
 
     class Meta:
-        model = LatestIssue
+        model  = LatestIssue
         fields = ("year", "title", "pdf_file")
 
     def get_lang(self):

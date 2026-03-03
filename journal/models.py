@@ -29,68 +29,71 @@ class JournalSection(models.Model):
         return getattr(self, f"content_{lang}", "")
 
 
-class EditorialOfficeMember(models.Model):
-    full_name_ru = models.CharField(max_length=255)
-    full_name_en = models.CharField(max_length=255)
-    full_name_kg = models.CharField(max_length=255)
-    position_ru = models.CharField(max_length=255)
-    position_en = models.CharField(max_length=255)
-    position_kg = models.CharField(max_length=255)
-    photo = CloudinaryField(blank=True, null=True, verbose_name=_("Фото"))
-    order = models.PositiveIntegerField(default=0)
-    is_active = models.BooleanField(default=True)
-
-    class Meta:
-        ordering = ["order"]
-
-    def __str__(self):
-        return self.full_name_ru
-
-    def get_full_name(self, lang="ru"):
-        return getattr(self, f"full_name_{lang}", "")
-
-    def get_position(self, lang="ru"):
-        return getattr(self, f"position_{lang}", "")
-
-
-class EditorialBoardMember(models.Model):
-    full_name_ru = models.CharField(max_length=255)
-    full_name_en = models.CharField(max_length=255)
-    full_name_kg = models.CharField(max_length=255)
-    order = models.PositiveIntegerField(default=0)
-    is_active = models.BooleanField(default=True)
-
-    class Meta:
-        ordering = ["order"]
-
-    def __str__(self):
-        return self.full_name_ru
-
-    def get_full_name(self, lang="ru"):
-        return getattr(self, f"full_name_{lang}", "")
-
-
-class JournalArchive(models.Model):
-    year = models.PositiveIntegerField()
+class EditorialBoard(models.Model):
     title_ru = models.CharField(max_length=255)
     title_en = models.CharField(max_length=255)
     title_kg = models.CharField(max_length=255)
-    pdf_ru = models.FileField(upload_to="journal/archive/", blank=True, null=True, verbose_name=_("PDF (RU)"))
-    pdf_en = models.FileField(upload_to="journal/archive/", blank=True, null=True, verbose_name=_("PDF (EN)"))
-    pdf_kg = models.FileField(upload_to="journal/archive/", blank=True, null=True, verbose_name=_("PDF (KG)"))
+
+    file_ru = models.FileField(
+        upload_to="editorial_board/",
+        blank=True, null=True,
+        verbose_name=_("PDF файл (RU)")
+    )
+    file_en = models.FileField(
+        upload_to="editorial_board/",
+        blank=True, null=True,
+        verbose_name=_("PDF файл (EN)")
+    )
+    file_kg = models.FileField(
+        upload_to="editorial_board/",
+        blank=True, null=True,
+        verbose_name=_("PDF файл (KG)")
+    )
+
+    is_active  = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Редколлегия"
+        verbose_name_plural = "Редколлегия"
+
+    def __str__(self):
+        return self.title_ru
+    
+
+
+class ArchiveYear(models.Model):
+    year      = models.PositiveIntegerField(unique=True)
     is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["-year"]
 
     def __str__(self):
-        return f"{self.title_ru} ({self.year})"
+        return str(self.year)
 
-    def get_title(self, lang="ru"):
-        return getattr(self, f"title_{lang}", "")
 
-    def get_pdf(self, lang="ru"):
-        return getattr(self, f"pdf_{lang}", None)
+class ArchiveItem(models.Model):
+    year     = models.ForeignKey(ArchiveYear, on_delete=models.CASCADE, related_name="items")
+    title_ru = models.CharField(max_length=255)
+    title_en = models.CharField(max_length=255)
+    title_kg = models.CharField(max_length=255)
+    file_ru  = models.FileField(upload_to="archive/ru/", blank=True, null=True, verbose_name=_("PDF (RU)"))
+    file_en  = models.FileField(upload_to="archive/en/", blank=True, null=True, verbose_name=_("PDF (EN)"))
+    file_kg  = models.FileField(upload_to="archive/kg/", blank=True, null=True, verbose_name=_("PDF (KG)"))
+    sort_order = models.PositiveIntegerField(default=0)
+    is_active  = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["sort_order", "id"]
+
+    def __str__(self):
+        return self.title_ru
 
 
 class LatestIssue(models.Model):
