@@ -5,9 +5,13 @@ from .views import (
     ArchiveListView,
     ArchiveByYearView,
     LatestIssueView,
+    EditorialOfficeListView,
+    EditorialOfficeDetailView
 )
 
 urlpatterns = [
+    path("editorial-office/",          EditorialOfficeListView.as_view(),   name="editorial-office-list"),
+    path("editorial-office/<int:pk>/", EditorialOfficeDetailView.as_view(), name="editorial-office-detail"),
     path("editorial-board/",        EditorialBoardView.as_view(),  name="editorial-board"),
     path("archive/",                ArchiveListView.as_view(),     name="archive-list"),
     path("archive/<int:year>/",     ArchiveByYearView.as_view(),   name="archive-by-year"),

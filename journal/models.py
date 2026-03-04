@@ -29,6 +29,40 @@ class JournalSection(models.Model):
         return getattr(self, f"content_{lang}", "")
 
 
+class EditorialOfficeMember(models.Model):
+
+    name_ru = models.CharField(max_length=255, verbose_name=_("ФИО (RU)"))
+    name_en = models.CharField(max_length=255, verbose_name=_("ФИО (EN)"))
+    name_kg = models.CharField(max_length=255, verbose_name=_("ФИО (KG)"))
+
+    position_ru = models.CharField(max_length=255, verbose_name=_("Должность (RU)"))
+    position_en = models.CharField(max_length=255, verbose_name=_("Должность (EN)"))
+    position_kg = models.CharField(max_length=255, verbose_name=_("Должность (KG)"))
+
+    image = models.ImageField(
+        upload_to="journal/editorial_office/",
+        blank=True, null=True,
+        verbose_name=_("Фото"),
+    )
+
+    description_ru = RichTextField(blank=True, default="", verbose_name=_("Описание (RU)"))
+    description_en = RichTextField(blank=True, default="", verbose_name=_("Описание (EN)"))
+    description_kg = RichTextField(blank=True, default="", verbose_name=_("Описание (KG)"))
+
+    sort_order = models.PositiveIntegerField(default=0, verbose_name=_("Порядок"))
+    is_active  = models.BooleanField(default=True, verbose_name=_("Активен"))
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["sort_order", "id"]
+        verbose_name = _("Член редакции")
+        verbose_name_plural = _("Редакция журнала")
+
+    def __str__(self):
+        return self.name_ru
+
+
 class EditorialBoard(models.Model):
     title_ru = models.CharField(max_length=255)
     title_en = models.CharField(max_length=255)

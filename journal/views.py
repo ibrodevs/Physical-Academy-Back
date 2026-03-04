@@ -7,12 +7,14 @@ from .models import (
     LatestIssue,
     ArchiveYear,
     ArchiveItem,
+    EditorialOfficeMember
 )
 from .serializers import (
     JournalSectionSerializer,
     EditorialBoardSerializer,
     ArchiveYearSerializer,
     LatestIssueSerializer,
+    EditorialOfficeMemberSerializer
 )
 
 VALID_LANGS = {"ru", "en", "kg"}
@@ -31,6 +33,42 @@ class JournalSectionView(generics.ListAPIView):
         context = super().get_serializer_context()
         context['language'] = self.request.query_params.get('lang', 'ru')
         return context
+    
+class EditorialOfficeListView(APIView):
+    """GET /api/journal/editorial-office/?lang=ru"""
+    def get(self, request):
+        lang = request.query_params.get("lang", "ru")
+        if lang not in VALID_LANGS:
+            return Response(
+                {"error": "Invalid lang parameter. Use: ru, en, kg"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        members = EditorialOfficeMember.objects.filter(is_active=True)
+        serializer = EditorialOfficeMemberSerializer(
+            members, many=True,
+            context={"lang": lang, "request": request},
+        )
+        return Response(serializer.data)
+
+
+class EditorialOfficeDetailView(APIView):
+    def get(self, request, pk):
+        lang = request.query_params.get("lang", "ru")
+        if lang not in VALID_LANGS:
+            return Response(
+                {"error": "Invalid lang parameter. Use: ru, en, kg"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            member = EditorialOfficeMember.objects.get(pk=pk, is_active=True)
+        except EditorialOfficeMember.DoesNotExist:
+            return Response({"error": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = EditorialOfficeMemberSerializer(
+            member,
+            context={"lang": lang, "request": request},
+        )
+        return Response(serializer.data)
 
 
 class EditorialBoardView(APIView):

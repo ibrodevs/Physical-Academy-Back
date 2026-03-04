@@ -4,6 +4,7 @@ from .models import (
     EditorialBoard,
     LatestIssue,
     ArchiveYear,    ArchiveItem,
+    EditorialOfficeMember
 )
 
 
@@ -12,6 +13,29 @@ class JournalSectionAdmin(admin.ModelAdmin):
     list_display  = ("section", "is_active", "updated_at")
     list_filter   = ("is_active",)
     list_editable = ("is_active",)
+
+
+@admin.register(EditorialOfficeMember)
+class EditorialOfficeMemberAdmin(admin.ModelAdmin):
+    list_display  = ("name_ru", "position_ru", "is_active", "sort_order", "updated_at")
+    list_editable = ("is_active", "sort_order")
+    list_filter   = ("is_active",)
+    search_fields = ("name_ru", "name_en", "name_kg", "position_ru")
+    ordering      = ("sort_order", "id")
+    fieldsets = (
+        ("Русский", {
+            "fields": ("name_ru", "position_ru", "description_ru"),
+        }),
+        ("English", {
+            "fields": ("name_en", "position_en", "description_en"),
+        }),
+        ("Кыргызча", {
+            "fields": ("name_kg", "position_kg", "description_kg"),
+        }),
+        ("Фото и настройки", {
+            "fields": ("image", "sort_order", "is_active"),
+        }),
+    )
 
 
 @admin.register(EditorialBoard)

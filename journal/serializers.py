@@ -5,6 +5,7 @@ from .models import (
     LatestIssue,
     ArchiveYear,
     ArchiveItem,
+    EditorialOfficeMember
 )
 
 
@@ -18,6 +19,35 @@ class JournalSectionSerializer(serializers.ModelSerializer):
     def get_content(self, obj):
         lang = self.context.get("language", "ru")
         return obj.get_content(lang)
+    
+
+class EditorialOfficeMemberSerializer(serializers.ModelSerializer):
+    name        = serializers.SerializerMethodField()
+    position    = serializers.SerializerMethodField()
+    image       = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = EditorialOfficeMember
+        fields = ["id", "name", "position", "image", "description"]
+
+    def _lang(self):
+        return self.context.get("lang", "ru")
+
+    def get_name(self, obj):
+        return getattr(obj, f"name_{self._lang()}", obj.name_ru)
+
+    def get_position(self, obj):
+        return getattr(obj, f"position_{self._lang()}", obj.position_ru)
+
+    def get_image(self, obj):
+        request = self.context.get("request")
+        if obj.image and request:
+            return request.build_absolute_uri(obj.image.url)
+        return None
+
+    def get_description(self, obj):
+        return getattr(obj, f"description_{self._lang()}", obj.description_ru)
 
 
 class EditorialBoardSerializer(serializers.ModelSerializer):
