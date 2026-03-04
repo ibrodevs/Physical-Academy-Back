@@ -11,14 +11,23 @@ from .models import (
 
 class JournalSectionSerializer(serializers.ModelSerializer):
     content = serializers.SerializerMethodField()
+    pdf     = serializers.SerializerMethodField()
 
     class Meta:
         model  = JournalSection
-        fields = ("section", "content")
+        fields = ("section", "content", "pdf")
 
     def get_content(self, obj):
         lang = self.context.get("language", "ru")
         return obj.get_content(lang)
+
+    def get_pdf(self, obj):
+        lang    = self.context.get("language", "ru")
+        request = self.context.get("request")
+        file    = getattr(obj, f"pdf_{lang}", None)
+        if file and file.name and request:
+            return request.build_absolute_uri(file.url)
+        return None
     
 
 class EditorialOfficeMemberSerializer(serializers.ModelSerializer):

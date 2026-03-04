@@ -13,6 +13,20 @@ class JournalSectionAdmin(admin.ModelAdmin):
     list_display  = ("section", "is_active", "updated_at")
     list_filter   = ("is_active",)
     list_editable = ("is_active",)
+    fieldsets = (
+        (None, {
+            "fields": ("section", "is_active"),
+        }),
+        ("Русский", {
+            "fields": ("content_ru", "pdf_ru"),
+        }),
+        ("English", {
+            "fields": ("content_en", "pdf_en"),
+        }),
+        ("Кыргызча", {
+            "fields": ("content_kg", "pdf_kg"),
+        }),
+    )
 
 
 @admin.register(EditorialOfficeMember)

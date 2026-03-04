@@ -19,6 +19,9 @@ class JournalSection(models.Model):
     content_ru = RichTextField()
     content_en = RichTextField()
     content_kg = RichTextField()
+    pdf_ru = models.FileField(upload_to="journal/sections/", blank=True, null=True, verbose_name=_("PDF (RU)"))
+    pdf_en = models.FileField(upload_to="journal/sections/", blank=True, null=True, verbose_name=_("PDF (EN)"))
+    pdf_kg = models.FileField(upload_to="journal/sections/", blank=True, null=True, verbose_name=_("PDF (KG)"))
     is_active = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)
 
