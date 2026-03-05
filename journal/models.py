@@ -2,6 +2,21 @@ from django.db import models
 from ckeditor.fields import RichTextField
 from cloudinary.models import CloudinaryField
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
+
+
+MAX_FILE_SIZE_MB = 50
+MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+
+
+def validate_file_size_50mb(value):
+    if not value:
+        return
+    if value.size > MAX_FILE_SIZE_BYTES:
+        raise ValidationError(
+            _("Максимальный размер файла: %(max_size)s MB."),
+            params={"max_size": MAX_FILE_SIZE_MB},
+        )
 
 
 class JournalSection(models.Model):
@@ -19,9 +34,27 @@ class JournalSection(models.Model):
     content_ru = RichTextField()
     content_en = RichTextField()
     content_kg = RichTextField()
-    pdf_ru = models.FileField(upload_to="journal/sections/", blank=True, null=True, verbose_name=_("PDF (RU)"))
-    pdf_en = models.FileField(upload_to="journal/sections/", blank=True, null=True, verbose_name=_("PDF (EN)"))
-    pdf_kg = models.FileField(upload_to="journal/sections/", blank=True, null=True, verbose_name=_("PDF (KG)"))
+    pdf_ru = models.FileField(
+        upload_to="journal/sections/",
+        blank=True,
+        null=True,
+        verbose_name=_("PDF (RU)"),
+        validators=[validate_file_size_50mb],
+    )
+    pdf_en = models.FileField(
+        upload_to="journal/sections/",
+        blank=True,
+        null=True,
+        verbose_name=_("PDF (EN)"),
+        validators=[validate_file_size_50mb],
+    )
+    pdf_kg = models.FileField(
+        upload_to="journal/sections/",
+        blank=True,
+        null=True,
+        verbose_name=_("PDF (KG)"),
+        validators=[validate_file_size_50mb],
+    )
     is_active = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -74,17 +107,20 @@ class EditorialBoard(models.Model):
     file_ru = models.FileField(
         upload_to="editorial_board/",
         blank=True, null=True,
-        verbose_name=_("PDF файл (RU)")
+        verbose_name=_("PDF файл (RU)"),
+        validators=[validate_file_size_50mb],
     )
     file_en = models.FileField(
         upload_to="editorial_board/",
         blank=True, null=True,
-        verbose_name=_("PDF файл (EN)")
+        verbose_name=_("PDF файл (EN)"),
+        validators=[validate_file_size_50mb],
     )
     file_kg = models.FileField(
         upload_to="editorial_board/",
         blank=True, null=True,
-        verbose_name=_("PDF файл (KG)")
+        verbose_name=_("PDF файл (KG)"),
+        validators=[validate_file_size_50mb],
     )
 
     is_active  = models.BooleanField(default=True)
@@ -118,9 +154,27 @@ class ArchiveItem(models.Model):
     title_ru = models.CharField(max_length=255)
     title_en = models.CharField(max_length=255)
     title_kg = models.CharField(max_length=255)
-    file_ru  = models.FileField(upload_to="archive/ru/", blank=True, null=True, verbose_name=_("PDF (RU)"))
-    file_en  = models.FileField(upload_to="archive/en/", blank=True, null=True, verbose_name=_("PDF (EN)"))
-    file_kg  = models.FileField(upload_to="archive/kg/", blank=True, null=True, verbose_name=_("PDF (KG)"))
+    file_ru  = models.FileField(
+        upload_to="archive/ru/",
+        blank=True,
+        null=True,
+        verbose_name=_("PDF (RU)"),
+        validators=[validate_file_size_50mb],
+    )
+    file_en  = models.FileField(
+        upload_to="archive/en/",
+        blank=True,
+        null=True,
+        verbose_name=_("PDF (EN)"),
+        validators=[validate_file_size_50mb],
+    )
+    file_kg  = models.FileField(
+        upload_to="archive/kg/",
+        blank=True,
+        null=True,
+        verbose_name=_("PDF (KG)"),
+        validators=[validate_file_size_50mb],
+    )
     sort_order = models.PositiveIntegerField(default=0)
     is_active  = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -138,9 +192,27 @@ class LatestIssue(models.Model):
     title_ru = models.CharField(max_length=255)
     title_en = models.CharField(max_length=255)
     title_kg = models.CharField(max_length=255)
-    pdf_ru = models.FileField(upload_to="journal/latest/", blank=True, null=True, verbose_name=_("PDF (RU)"))
-    pdf_en = models.FileField(upload_to="journal/latest/", blank=True, null=True, verbose_name=_("PDF (EN)"))
-    pdf_kg = models.FileField(upload_to="journal/latest/", blank=True, null=True, verbose_name=_("PDF (KG)"))
+    pdf_ru = models.FileField(
+        upload_to="journal/latest/",
+        blank=True,
+        null=True,
+        verbose_name=_("PDF (RU)"),
+        validators=[validate_file_size_50mb],
+    )
+    pdf_en = models.FileField(
+        upload_to="journal/latest/",
+        blank=True,
+        null=True,
+        verbose_name=_("PDF (EN)"),
+        validators=[validate_file_size_50mb],
+    )
+    pdf_kg = models.FileField(
+        upload_to="journal/latest/",
+        blank=True,
+        null=True,
+        verbose_name=_("PDF (KG)"),
+        validators=[validate_file_size_50mb],
+    )
     is_active = models.BooleanField(default=True)
 
     class Meta:

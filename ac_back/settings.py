@@ -198,7 +198,7 @@ cloudinary.config(
 # Cloudinary Storage Settings (Django 4.2+ format)
 STORAGES = {
     "default": {
-        "BACKEND": "cloudinary_storage.storage.RawMediaCloudinaryStorage",
+        "BACKEND": "ac_back.storage.RawMediaCloudinaryStorage",
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
