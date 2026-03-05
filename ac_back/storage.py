@@ -30,20 +30,6 @@ class RawMediaCloudinaryStorage(BaseRawMediaCloudinaryStorage):
         if hasattr(content, "seek"):
             content.seek(0)
 
-        size = getattr(content, "size", None)
-        if size is None and hasattr(content, "tell") and hasattr(content, "seek"):
-            try:
-                current_pos = content.tell()
-                content.seek(0, os.SEEK_END)
-                size = content.tell()
-                content.seek(current_pos)
-            except Exception:
-                size = None
-
-        # Some Cloudinary setups reject single upload requests above ~10 MB.
-        # upload_large sends the file in chunks and avoids this request-size limit.
-        if size is None or size > self.MAX_SINGLE_UPLOAD_SIZE:
-            options["chunk_size"] = self.LARGE_UPLOAD_CHUNK_SIZE
-            return cloudinary.uploader.upload_large(content, **options)
-
-        return cloudinary.uploader.upload(content, **options)
+        # Always use chunked upload for raw files to avoid 10 MB single-request limits.
+        options["chunk_size"] = self.LARGE_UPLOAD_CHUNK_SIZE
+        return cloudinary.uploader.upload_large(content, **options)
