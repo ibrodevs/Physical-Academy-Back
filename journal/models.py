@@ -3,19 +3,23 @@ from ckeditor.fields import RichTextField
 from cloudinary.models import CloudinaryField
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
+import os
 
 
-MAX_FILE_SIZE_MB = 50
-MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+APP_MAX_FILE_SIZE_MB = int(os.getenv("JOURNAL_MAX_FILE_SIZE_MB", "50"))
+# Cloudinary may enforce a lower hard cap on the account/preset level.
+CLOUDINARY_HARD_CAP_MB = int(os.getenv("CLOUDINARY_HARD_CAP_MB", "10"))
+EFFECTIVE_MAX_FILE_SIZE_MB = min(APP_MAX_FILE_SIZE_MB, CLOUDINARY_HARD_CAP_MB)
+EFFECTIVE_MAX_FILE_SIZE_BYTES = EFFECTIVE_MAX_FILE_SIZE_MB * 1024 * 1024
 
 
 def validate_file_size_50mb(value):
     if not value:
         return
-    if value.size > MAX_FILE_SIZE_BYTES:
+    if value.size > EFFECTIVE_MAX_FILE_SIZE_BYTES:
         raise ValidationError(
             _("Максимальный размер файла: %(max_size)s MB."),
-            params={"max_size": MAX_FILE_SIZE_MB},
+            params={"max_size": EFFECTIVE_MAX_FILE_SIZE_MB},
         )
 
 
