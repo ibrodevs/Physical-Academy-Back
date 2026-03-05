@@ -21,7 +21,7 @@ class AdministrativeStructureSerializer(serializers.ModelSerializer):
             return obj.title_kg
         return obj.title_ru
 
-    def get_pdf(self, obj) -> Optional[str]:
+    def get_pdf_file(self, obj) -> Optional[str]:
         request = self.context.get("request")
         lang = request.query_params.get("lang", "ru") if request else "ru"
         if lang == "en":
