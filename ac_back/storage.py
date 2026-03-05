@@ -15,6 +15,13 @@ class RawMediaCloudinaryStorage(BaseRawMediaCloudinaryStorage):
         os.getenv("CLOUDINARY_LARGE_UPLOAD_CHUNK_SIZE", str(6 * 1024 * 1024))
     )
 
+    def _get_resource_type(self, name):
+        # Cloudinary may enforce lower limits for raw resources.
+        # Store PDFs as image resources to allow larger file uploads.
+        if str(name).lower().endswith(".pdf"):
+            return "image"
+        return super()._get_resource_type(name)
+
     def _upload(self, name, content):
         import cloudinary.uploader
 
