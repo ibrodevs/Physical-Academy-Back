@@ -16,9 +16,15 @@ class RawMediaCloudinaryStorage(BaseRawMediaCloudinaryStorage):
     )
 
     def _get_resource_type(self, name):
+        normalized_name = str(name).lower()
+
+        # Vestnik latest issue PDFs must stay in raw to keep expected delivery URL.
+        if normalized_name.endswith(".pdf") and normalized_name.startswith("journal/latest/"):
+            return "raw"
+
         # Cloudinary may enforce lower limits for raw resources.
         # Store PDFs as image resources to allow larger file uploads.
-        if str(name).lower().endswith(".pdf"):
+        if normalized_name.endswith(".pdf"):
             return "image"
         return super()._get_resource_type(name)
 
