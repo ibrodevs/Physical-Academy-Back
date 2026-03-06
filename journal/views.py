@@ -75,16 +75,17 @@ class EditorialBoardView(APIView):
     def get(self, request):
         lang = get_lang(request)
 
-        board = EditorialBoard.objects.filter(is_active=True).first()
+        boards = EditorialBoard.objects.filter(is_active=True).order_by("id")
 
-        if not board:
+        if not boards.exists():
             return Response(
                 {"error": "No active editorial board found."},
                 status=status.HTTP_404_NOT_FOUND
             )
 
         serializer = EditorialBoardSerializer(
-            board,
+            boards,
+            many=True,
             context={"lang": lang, "request": request}
         )
         return Response(serializer.data)
