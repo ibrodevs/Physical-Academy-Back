@@ -231,3 +231,48 @@ class LatestIssue(models.Model):
     def get_pdf(self, lang="ru"):
      field = getattr(self, f"pdf_{lang}", None)
      return field if field else None
+
+class ThemeRegistry(models.Model):
+    title_ru = models.CharField(max_length=255, verbose_name=_("Название темы (RU)"))
+    title_en = models.CharField(max_length=255, verbose_name=_("Название темы (EN)"))
+    title_kg = models.CharField(max_length=255, verbose_name=_("Название темы (KG)"))
+
+    pdf_ru = models.FileField(upload_to="Journal/themes/", blank=True, null=True, verbose_name=_("PDF (RU)"))
+    pdf_en = models.FileField(upload_to="Journal/themes/", blank=True, null=True, verbose_name=_("PDF (EN)"))
+    pdf_kg = models.FileField(upload_to="Journal/themes/", blank=True, null=True, verbose_name=_("PDF (KG)"))
+
+    sort_order = models.PositiveIntegerField(default=0, verbose_name=_("Порядок"))
+    is_active  = models.BooleanField(default=True, verbose_name=_("Активна"))
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["sort_order", "id"]
+        verbose_name = _("Реестр тем")
+        verbose_name_plural = _("Реестр тем")
+
+    def __str__(self):
+        return self.title_ru
+    
+
+class Regulation(models.Model):
+    title_ru = models.CharField(max_length=255, verbose_name=_("Название (RU)"))
+    title_en = models.CharField(max_length=255, verbose_name=_("Название (EN)"))
+    title_kg = models.CharField(max_length=255, verbose_name=_("Название (KG)"))
+
+    pdf_ru = models.FileField(upload_to="Journal/regulations/", blank=True, null=True, verbose_name=_("PDF (RU)"))
+    pdf_en = models.FileField(upload_to="Journal/regulations/", blank=True, null=True, verbose_name=_("PDF (EN)"))
+    pdf_kg = models.FileField(upload_to="Journal/regulations/", blank=True, null=True, verbose_name=_("PDF (KG)"))
+
+    sort_order = models.PositiveIntegerField(default=0, verbose_name=_("Порядок"))
+    is_active  = models.BooleanField(default=True, verbose_name=_("Активна"))
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["sort_order", "id"]
+        verbose_name = _("Положение")
+        verbose_name_plural = _("Положения")
+
+    def __str__(self):
+        return self.title_ru

@@ -5,7 +5,9 @@ from .models import (
     LatestIssue,
     ArchiveYear,
     ArchiveItem,
-    EditorialOfficeMember
+    EditorialOfficeMember,
+    ThemeRegistry,
+    Regulation
 )
 
 
@@ -133,4 +135,47 @@ class LatestIssueSerializer(serializers.ModelSerializer):
         pdf = obj.get_pdf(self.get_lang())
         if pdf and hasattr(pdf, 'url'):
             return request.build_absolute_uri(pdf.url) if request else pdf.url
+        return None
+    
+from .models import ThemeRegistry, Regulation
+
+class ThemeRegistrySerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
+    pdf   = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = ThemeRegistry
+        fields = ["id", "title", "pdf"]
+
+    def get_title(self, obj):
+        lang = self.context.get("lang", "ru")
+        return getattr(obj, f"title_{lang}", obj.title_ru)
+
+    def get_pdf(self, obj):
+        request = self.context.get("request")
+        lang    = self.context.get("lang", "ru")
+        file    = getattr(obj, f"pdf_{lang}", None)
+        if file and file.name and request:
+            return request.build_absolute_uri(file.url)
+        return None
+
+
+class RegulationSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
+    pdf   = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = Regulation
+        fields = ["id", "title", "pdf"]
+
+    def get_title(self, obj):
+        lang = self.context.get("lang", "ru")
+        return getattr(obj, f"title_{lang}", obj.title_ru)
+
+    def get_pdf(self, obj):
+        request = self.context.get("request")
+        lang    = self.context.get("lang", "ru")
+        file    = getattr(obj, f"pdf_{lang}", None)
+        if file and file.name and request:
+            return request.build_absolute_uri(file.url)
         return None

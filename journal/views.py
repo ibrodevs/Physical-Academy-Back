@@ -7,14 +7,18 @@ from .models import (
     LatestIssue,
     ArchiveYear,
     ArchiveItem,
-    EditorialOfficeMember
+    EditorialOfficeMember,
+    ThemeRegistry,
+    Regulation
 )
 from .serializers import (
     JournalSectionSerializer,
     EditorialBoardSerializer,
     ArchiveYearSerializer,
     LatestIssueSerializer,
-    EditorialOfficeMemberSerializer
+    EditorialOfficeMemberSerializer,
+    ThemeRegistrySerializer,
+    RegulationSerializer
 )
 
 VALID_LANGS = {"ru", "en", "kg"}
@@ -134,3 +138,41 @@ class LatestIssueView(APIView):
             context={"language": lang, "request": request}
         )
         return Response(serializer.data)
+    
+from .models import ThemeRegistry, Regulation
+from .serializers import ThemeRegistrySerializer, RegulationSerializer
+
+class ThemeRegistryListView(APIView):
+    """GET /api/journal/theme-registry/?lang=ru"""
+    def get(self, request):
+        lang = request.query_params.get("lang", "ru")
+        if lang not in VALID_LANGS:
+            return Response(
+                {"error": "Invalid lang parameter. Use: ru, en, kg"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        items = ThemeRegistry.objects.filter(is_active=True)
+        serializer = ThemeRegistrySerializer(
+            items, many=True,
+            context={"lang": lang, "request": request},
+        )
+        return Response(serializer.data)
+
+
+class RegulationListView(APIView):
+    """GET /api/journal/regulations/?lang=ru"""
+    def get(self, request):
+        lang = request.query_params.get("lang", "ru")
+        if lang not in VALID_LANGS:
+            return Response(
+                {"error": "Invalid lang parameter. Use: ru, en, kg"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        items = Regulation.objects.filter(is_active=True)
+        serializer = RegulationSerializer(
+            items, many=True,
+            context={"lang": lang, "request": request},
+        )
+        return Response(serializer.data)
+
+    

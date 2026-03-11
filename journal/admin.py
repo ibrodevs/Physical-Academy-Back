@@ -4,7 +4,9 @@ from .models import (
     EditorialBoard,
     LatestIssue,
     ArchiveYear,    ArchiveItem,
-    EditorialOfficeMember
+    EditorialOfficeMember,
+    ThemeRegistry,
+    Regulation
 )
 
 
@@ -75,3 +77,18 @@ class LatestIssueAdmin(admin.ModelAdmin):
     list_display  = ("title_ru", "year", "is_active")
     list_editable = ("is_active",)
     ordering      = ("-year",)
+
+
+@admin.register(ThemeRegistry)
+class ThemeRegistryAdmin(admin.ModelAdmin):
+    list_display  = ("title_ru", "is_active", "sort_order", "updated_at")
+    list_editable = ("is_active", "sort_order")
+    list_filter   = ("is_active",)
+    search_fields = ("title_ru", "title_en", "title_kg")
+
+@admin.register(Regulation)
+class RegulationAdmin(admin.ModelAdmin):
+    list_display  = ("title_ru", "is_active", "sort_order", "updated_at")
+    list_editable = ("is_active", "sort_order")
+    list_filter   = ("is_active",)
+    search_fields = ("title_ru", "title_en", "title_kg")
